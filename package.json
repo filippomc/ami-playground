@@ -1,7 +1,33 @@
 {
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/material": "^5.11.9",
     "ami.js": ">=0.32.0",
     "dat.gui": "^0.7.9",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "three": "0.118.0"
-  }
+  },
+  "name": "ami-playground",
+  "description": "Playground to create AMI.js usage examples",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "mocha": "^10.2.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/filippomc/ami-playground.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/filippomc/ami-playground/issues"
+  },
+  "homepage": "https://github.com/filippomc/ami-playground#readme"
 }

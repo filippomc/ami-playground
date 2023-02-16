@@ -4,3 +4,8 @@ export const colors = {
   red: 0xff0000,
   darkGrey: 0x353535,
 };
+export const orderSeries = (files, series) => {
+  return files.map((uri) => {
+    return series.find((modelSeries) => modelSeries._seriesInstanceUID === uri);
+  });
+}
