@@ -19,7 +19,16 @@ const orientationMap = {
     'coronal': 2,
 }
 
-export default function DicomViewerView({baseStack, overlayStack, borderColor, lutData, orientation, lutContainer, helperLut, ...props}) {
+export default function DicomViewerView({
+                                            baseStack,
+                                            overlayStack,
+                                            borderColor,
+                                            lutData,
+                                            orientation,
+                                            lutContainer,
+                                            helperLut,
+                                            ...props
+                                        }) {
     const baseContainerRef = useRef(null);
     const overlayContainerRef = useRef(null);
 
@@ -29,16 +38,58 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
     const baseRendererRef = useRef(null)
     const overlayRendererRef = useRef(null)
 
+    const stackHelperRef = useRef(null)
+    const overlayStackHelperRef = useRef(null)
+
     const cameraRef = useRef(null)
     const controlsRef = useRef(null)
 
     const hasOverlay = overlayStack !== undefined
     // todo: handle dicomViewer resize
 
+    const subscribeEvents = () => {
+        const container = hasOverlay ? overlayContainerRef.current : baseContainerRef.current
+        container.addEventListener('wheel', handleScroll);
+    }
+
+    const handleScroll = (event) => {
+        const isAdd = event.deltaY > 0
+        updateStackHelperIndex(stackHelperRef.current, isAdd)
+        if(hasOverlay) {
+            updateStackHelperIndex(overlayStackHelperRef.current, isAdd)
+        }
+    }
+
+    const updateStackHelperIndex = (stackHelper, isAdd) => {
+        if (stackHelper) {
+            if (isAdd) {
+                if (stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
+                    return
+                }
+                stackHelper.index = stackHelper.index + 1;
+            }else{
+                if (stackHelper.index <= 0) {
+                    return
+                }
+                stackHelper.index = stackHelper.index - 1;
+            }
+        }
+
+    }
+
+    const unSubscribeEvents = () => {
+        const container = hasOverlay ? overlayContainerRef.current : baseContainerRef.current
+        container.removeEventListener('wheel');
+    }
 
     useEffect(() => {
         initViewer()
         animate()
+        subscribeEvents()
+        return () => {
+            unSubscribeEvents()
+            // TODO: Clear dom elements
+        }
     }, []);
 
     const animate = () => {
@@ -120,8 +171,6 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
     }
 
     useEffect(() => {
-        // todo: clear previous state
-
         const camera = cameraRef.current
         const baseContainer = baseContainerRef.current
 
@@ -129,6 +178,7 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
         stackHelper.bbox.visible = false;
         stackHelper.border.color = colors.darkGrey;
         baseSceneRef.current.add(stackHelper);
+        stackHelperRef.current = stackHelper;
 
         // center camera and interactor to center of bounding box
         const worldBB = baseStack.worldBoundingBox();
@@ -165,13 +215,13 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
             stackHelper.slice.lutTexture = helperLut.texture;
             stackHelper.orientation = orientationMap[orientation];
             overlaySceneRef.current.add(stackHelper);
+            overlayStackHelperRef.current = stackHelper;
         }
     }, [overlayStack, borderColor, helperLut]);
 
 
-
     return (
-        <Box sx={{position: "relative",  height: "100%", width: "100%"}}>
+        <Box sx={{position: "relative", height: "100%", width: "100%"}}>
 
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}}
