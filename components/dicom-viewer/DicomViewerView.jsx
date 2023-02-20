@@ -4,6 +4,7 @@ import * as AMI from 'ami.js';
 import {useEffect, useRef} from "react";
 import {colors} from '../../utils';
 import {Box} from "@mui/material";
+import {useSize} from "../../hooks/useSize";
 
 
 window.AMI = AMI;
@@ -44,12 +45,14 @@ export default function DicomViewerView({
     const cameraRef = useRef(null)
     const controlsRef = useRef(null)
 
+    const size = useSize(baseContainerRef)
+
     const hasOverlay = overlayStack !== undefined
-    // todo: handle dicomViewer resize
 
     const subscribeEvents = () => {
         const container = hasOverlay ? overlayContainerRef.current : baseContainerRef.current
         container.addEventListener('wheel', handleScroll);
+        document.addEventListener('resize', () => console.log("Test"));
     }
 
     const handleScroll = (event) => {
@@ -79,7 +82,7 @@ export default function DicomViewerView({
 
     const unSubscribeEvents = () => {
         const container = hasOverlay ? overlayContainerRef.current : baseContainerRef.current
-        container.removeEventListener('wheel');
+        container.removeEventListener('wheel', handleScroll);
     }
 
     useEffect(() => {
@@ -119,11 +122,15 @@ export default function DicomViewerView({
     }
 
 
+    function setRendererSize(renderer, container) {
+        renderer.setSize(container.offsetWidth, container.offsetHeight);
+    }
+
     function getRenderer(container) {
         const renderer = new THREE.WebGLRenderer({
             antialias: true,
         });
-        renderer.setSize(container.offsetWidth, container.offsetHeight);
+        setRendererSize(renderer, container);
         renderer.setClearColor(colors.darkGrey, 1);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
@@ -170,6 +177,13 @@ export default function DicomViewerView({
         camera.controls = controlsRef.current;
     }
 
+    function updateCameraDimensions(container) {
+        cameraRef.current.canvas = {
+            width: container.clientWidth,
+            height: container.clientHeight,
+        };
+    }
+
     useEffect(() => {
         const camera = cameraRef.current
         const baseContainer = baseContainerRef.current
@@ -192,14 +206,10 @@ export default function DicomViewerView({
             halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
         };
 
-        const canvas = {
-            width: baseContainer.clientWidth,
-            height: baseContainer.clientHeight,
-        };
+        updateCameraDimensions(baseContainer);
 
         camera.directions = [baseStack.xCosine, baseStack.yCosine, baseStack.zCosine];
         camera.box = box;
-        camera.canvas = canvas;
         camera.orientation = orientation;
         camera.update();
         camera.fitBox(2);
@@ -219,10 +229,23 @@ export default function DicomViewerView({
         }
     }, [overlayStack, borderColor, helperLut]);
 
+    // Handle resizes
+    useEffect(() => {
+        if(baseContainerRef){
+            handleResize(baseContainerRef.current, baseRendererRef.current)
+        }
+        if(overlayRendererRef){
+            handleResize(overlayContainerRef.current, overlayRendererRef.current)
+        }
+    }, [size])
+
+    const handleResize = (container, renderer) => {
+        updateCameraDimensions(container)
+        setRendererSize(renderer, container)
+    }
 
     return (
         <Box sx={{position: "relative", height: "100%", width: "100%"}}>
-
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}}
                  ref={overlayContainerRef}/>

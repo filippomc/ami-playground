@@ -3,6 +3,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@mui/material": "^5.11.9",
+    "@react-hook/resize-observer": "^1.2.6",
     "ami.js": ">=0.32.0",
     "dat.gui": "^0.7.9",
     "react": "^18.2.0",
