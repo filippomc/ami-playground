@@ -12,12 +12,10 @@ window.THREE = THREE;
 const StackHelper = AMI.stackHelperFactory(THREE);
 const OrthographicCamera = AMI.orthographicCameraFactory(THREE);
 const TrackballOrthoControl = AMI.trackballOrthoControlFactory(THREE);
-const HelpersLut = AMI.lutHelperFactory(THREE);
 
-export default function DicomViewerView({baseStack, overlayStack, borderColor, lutData, ...props}) {
+export default function DicomViewerView({baseStack, overlayStack, borderColor, lutData, orientation, lutContainer, helperLut, ...props}) {
     const baseContainerRef = useRef(null);
     const overlayContainerRef = useRef(null);
-    const lutContainerRef = useRef(null);
 
     const baseSceneRef = useRef(null)
     const overlaySceneRef = useRef(null)
@@ -27,7 +25,6 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
 
     const cameraRef = useRef(null)
     const controlsRef = useRef(null)
-    const lutRef = useRef(null)
 
     const hasOverlay = overlayStack !== undefined
     // todo: handle dicomViewer resize
@@ -62,7 +59,6 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
         initScenes();
         initCamera();
         initControls();
-        initLut();
     }
 
 
@@ -118,6 +114,8 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
     }
 
     useEffect(() => {
+        // todo: clear previous state
+
         const camera = cameraRef.current
         const baseContainer = baseContainerRef.current
 
@@ -152,46 +150,21 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
 
 
     useEffect(() => {
-        if (overlayStack) {
-            const lutLayer = lutRef.current
+        if (overlayStack && helperLut) {
             const stackHelper = new StackHelper(overlayStack);
-            const {lut, lut0, color, opacity} = lutData
-            updateLut(lut, lut0, color, opacity);
-
             stackHelper.bbox.visible = false;
             stackHelper.border.color = borderColor;
-            stackHelper.slice.lut = lutLayer.lut;
-            stackHelper.slice.lutTexture = lutLayer.texture;
+            stackHelper.slice.lut = helperLut.lut;
+            stackHelper.slice.lutTexture = helperLut.texture;
             overlaySceneRef.current.add(stackHelper);
         }
-    }, [overlayStack, lutData, borderColor]);
+    }, [overlayStack, borderColor, helperLut]);
 
-    const initLut = () => {
-        lutRef.current = new HelpersLut(
-            lutContainerRef.current,
-        );
-    }
 
-    const updateLut = (lut, lut0, color, opacity) => {
-        lutRef.current.luts = HelpersLut.presetLuts();
-        lutRef.current.lut = lut;
-        lutRef.current.lut0 = lut0;
-        lutRef.current.color = color;
-        lutRef.current.opacity = opacity;
-    }
 
     return (
         <Box sx={{position: "relative",  height: "100%"}}>
-            <Box sx={{
-                position: "fixed",
-                left: "50%",
-                transform: "translate(-50%, 0)",
-                zIndex: "3",
-                color: "#f9f9f9",
-                textAlign: "center"
-            }}>
-                <Box sx={{position: "relative" }} ref={lutContainerRef}></Box>
-            </Box>
+
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}}
                  ref={overlayContainerRef}/>

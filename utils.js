@@ -2,6 +2,8 @@ export const file = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/adi_brain/a
 export const file2 = 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/eun_brain/eun_uchar_8.nii.gz';
 export const colors = {
   red: 0xff0000,
+  blue: 0x0000ff,
+  green: 0x00ff00,
   darkGrey: 0x353535,
 };
 export const orderSeries = (files, series) => {
