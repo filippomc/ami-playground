@@ -61,9 +61,11 @@ export default function DicomViewer({mode, files, lutData, ...props}) {
             </Box>
             <Box sx={{height: "100%", display: "flex", flexDirection: "row"}}>
                 <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
-                                 lutData={lutData} helperLut={helperLut}/>
+                                 lutData={lutData} helperLut={helperLut} orientation={'axial'}/>
                 <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
-                                 lutData={lutData} helperLut={helperLut}/>
+                                 lutData={lutData} helperLut={helperLut} orientation={'coronal'}/>
+                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}
+                                 lutData={lutData} helperLut={helperLut} orientation={'sagittal'}/>
             </Box>
 
 

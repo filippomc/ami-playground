@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import * as AMI from 'ami.js';
-import {Fragment, useEffect, useRef} from "react";
+import {useEffect, useRef} from "react";
 import {colors} from '../../utils';
 import {Box} from "@mui/material";
 
@@ -12,6 +12,12 @@ window.THREE = THREE;
 const StackHelper = AMI.stackHelperFactory(THREE);
 const OrthographicCamera = AMI.orthographicCameraFactory(THREE);
 const TrackballOrthoControl = AMI.trackballOrthoControlFactory(THREE);
+
+const orientationMap = {
+    'axial': 0,
+    'sagittal': 1,
+    'coronal': 2,
+}
 
 export default function DicomViewerView({baseStack, overlayStack, borderColor, lutData, orientation, lutContainer, helperLut, ...props}) {
     const baseContainerRef = useRef(null);
@@ -144,6 +150,7 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
         camera.directions = [baseStack.xCosine, baseStack.yCosine, baseStack.zCosine];
         camera.box = box;
         camera.canvas = canvas;
+        camera.orientation = orientation;
         camera.update();
         camera.fitBox(2);
     }, [baseStack]);
@@ -156,6 +163,7 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
             stackHelper.border.color = borderColor;
             stackHelper.slice.lut = helperLut.lut;
             stackHelper.slice.lutTexture = helperLut.texture;
+            stackHelper.orientation = orientationMap[orientation];
             overlaySceneRef.current.add(stackHelper);
         }
     }, [overlayStack, borderColor, helperLut]);
