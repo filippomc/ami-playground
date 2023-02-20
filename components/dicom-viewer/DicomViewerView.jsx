@@ -163,7 +163,7 @@ export default function DicomViewerView({baseStack, overlayStack, borderColor, l
 
 
     return (
-        <Box sx={{position: "relative",  height: "100%"}}>
+        <Box sx={{position: "relative",  height: "100%", width: "100%"}}>
 
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}}

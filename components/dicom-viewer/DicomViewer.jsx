@@ -30,7 +30,7 @@ export default function DicomViewer({mode, files, lutData, ...props}) {
     }
 
     useEffect(() => {
-        if(lutContainerRef){
+        if (lutContainerRef) {
             initLut()
         }
     }, [lutContainerRef]);
@@ -48,7 +48,7 @@ export default function DicomViewer({mode, files, lutData, ...props}) {
 
 
     return stacks.length > 0 ? (
-        <Box ref={containerRef} sx={{height: "100%", }}>
+        <Box ref={containerRef} sx={{height: "100%",}}>
             <Box sx={{
                 position: "fixed",
                 left: "50%",
@@ -59,8 +59,13 @@ export default function DicomViewer({mode, files, lutData, ...props}) {
             }}>
                 <Box sx={{position: "relative"}} ref={newRef => setLutContainerRef(newRef)}></Box>
             </Box>
-            <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
-                             lutData={lutData} helperLut={helperLut}/>
+            <Box sx={{height: "100%", display: "flex", flexDirection: "row"}}>
+                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
+                                 lutData={lutData} helperLut={helperLut}/>
+                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
+                                 lutData={lutData} helperLut={helperLut}/>
+            </Box>
+
 
         </Box>
     ) : (
