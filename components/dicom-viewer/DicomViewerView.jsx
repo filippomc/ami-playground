@@ -24,11 +24,9 @@ export default function DicomViewerView({
                                             baseStack,
                                             overlayStack,
                                             borderColor,
-                                            lutData,
                                             orientation,
-                                            lutContainer,
                                             helperLut,
-                                            ...props
+                                            onMount
                                         }) {
     const baseContainerRef = useRef(null);
     const overlayContainerRef = useRef(null);
@@ -89,9 +87,9 @@ export default function DicomViewerView({
         initViewer()
         animate()
         subscribeEvents()
+        onMount(overlaySceneRef.current)
         return () => {
             unSubscribeEvents()
-            // TODO: Clear dom elements
         }
     }, []);
 
@@ -231,10 +229,10 @@ export default function DicomViewerView({
 
     // Handle resizes
     useEffect(() => {
-        if(baseContainerRef){
+        if(baseContainerRef.current){
             handleResize(baseContainerRef.current, baseRendererRef.current)
         }
-        if(overlayRendererRef){
+        if(overlayRendererRef.current){
             handleResize(overlayContainerRef.current, overlayRendererRef.current)
         }
     }, [size])
@@ -247,8 +245,8 @@ export default function DicomViewerView({
     return (
         <Box sx={{position: "relative", height: "100%", width: "100%"}}>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
-            <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}}
-                 ref={overlayContainerRef}/>
+            {hasOverlay && <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}}
+                 ref={overlayContainerRef}/>}
         </Box>
     )
 }
