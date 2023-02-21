@@ -189,6 +189,7 @@ export default function DicomViewerView({
         const stackHelper = new StackHelper(baseStack);
         stackHelper.bbox.visible = false;
         stackHelper.border.color = colors.darkGrey;
+        stackHelper.orientation = orientationMap[orientation];
         baseSceneRef.current.add(stackHelper);
         stackHelperRef.current = stackHelper;
 
