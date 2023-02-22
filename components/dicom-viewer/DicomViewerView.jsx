@@ -26,7 +26,8 @@ export default function DicomViewerView({
                                             borderColor,
                                             orientation,
                                             helperLut,
-                                            onMount
+                                            onMount,
+                                            opacity = "55%"
                                         }) {
     const baseContainerRef = useRef(null);
     const overlayContainerRef = useRef(null);
@@ -56,7 +57,7 @@ export default function DicomViewerView({
     const handleScroll = (event) => {
         const isAdd = event.deltaY > 0
         updateStackHelperIndex(stackHelperRef.current, isAdd)
-        if(hasOverlay) {
+        if (hasOverlay) {
             updateStackHelperIndex(overlayStackHelperRef.current, isAdd)
         }
     }
@@ -68,7 +69,7 @@ export default function DicomViewerView({
                     return
                 }
                 stackHelper.index = stackHelper.index + 1;
-            }else{
+            } else {
                 if (stackHelper.index <= 0) {
                     return
                 }
@@ -230,10 +231,10 @@ export default function DicomViewerView({
 
     // Handle resizes
     useEffect(() => {
-        if(baseContainerRef.current){
+        if (baseContainerRef.current) {
             handleResize(baseContainerRef.current, baseRendererRef.current)
         }
-        if(overlayRendererRef.current){
+        if (overlayRendererRef.current) {
             handleResize(overlayContainerRef.current, overlayRendererRef.current)
         }
     }, [size])
@@ -246,8 +247,9 @@ export default function DicomViewerView({
     return (
         <Box sx={{position: "relative", height: "100%", width: "100%"}}>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
-            {hasOverlay && <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}}
-                 ref={overlayContainerRef}/>}
+            {hasOverlay &&
+                <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%", opacity: opacity}}
+                     ref={overlayContainerRef}/>}
         </Box>
     )
 }

@@ -68,11 +68,11 @@ export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
                 <Box sx={{position: "relative"}} ref={newRef => setLutContainerRef(newRef)}></Box>
             </Box>
             <Box sx={{height: "100%", display: "flex", flexDirection: "row"}}>
-                <DicomViewerView baseStack={stacks[0]} overlayStack={undefined} borderColor={colors.red}
-                                 helperLut={helperLut} orientation={'axial'} onMount={addOverlayScene}/>
-                <DicomViewerView baseStack={stacks[0]} overlayStack={undefined} borderColor={colors.blue}
+                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
+                                 helperLut={helperLut} orientation={'axial'} onMount={addOverlayScene} />
+                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
                                  helperLut={helperLut} orientation={'coronal'} onMount={addOverlayScene}/>
-                <DicomViewerView baseStack={stacks[0]} overlayStack={undefined} borderColor={colors.green}
+                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}
                                  helperLut={helperLut} orientation={'sagittal'} onMount={addOverlayScene}/>
             </Box>
 
