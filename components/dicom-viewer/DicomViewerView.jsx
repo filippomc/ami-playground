@@ -41,8 +41,11 @@ export default function DicomViewerView({
     const stackHelperRef = useRef(null)
     const overlayStackHelperRef = useRef(null)
 
-    const cameraRef = useRef(null)
-    const controlsRef = useRef(null)
+    const baseCameraRef = useRef(null)
+    const overlayCameraRef = useRef(null)
+
+    const baseControlsRef = useRef(null)
+    const overlayControlsRef = useRef(null)
 
     const size = useSize(baseContainerRef)
 
@@ -95,17 +98,21 @@ export default function DicomViewerView({
     }, []);
 
     const animate = () => {
-        const controls = controlsRef.current
+        const baseControls = baseControlsRef.current
         const baseRenderer = baseRendererRef.current
-        const overlayRenderer = overlayRendererRef.current
         const baseScene = baseSceneRef.current
-        const overlayScene = overlaySceneRef.current
-        const baseCamera = cameraRef.current
+        const baseCamera = baseCameraRef.current
 
-        controls.update();
+        baseControls.update();
         baseRenderer.render(baseScene, baseCamera);
         if (hasOverlay) {
-            overlayRenderer.render(overlayScene, baseCamera);
+            const overlayRenderer = overlayRendererRef.current
+            const overlayScene = overlaySceneRef.current
+            const overlayCamera = overlayCameraRef.current
+            const overlayControls = overlayControlsRef.current
+
+            overlayControls.update();
+            overlayRenderer.render(overlayScene, overlayCamera);
         }
 
         requestAnimationFrame(function () {
@@ -116,7 +123,7 @@ export default function DicomViewerView({
     const initViewer = () => {
         initRenderers()
         initScenes();
-        initCamera();
+        initCameras();
         initControls();
     }
 
@@ -150,41 +157,92 @@ export default function DicomViewerView({
         baseSceneRef.current = new THREE.Scene();
         if (hasOverlay) {
             overlaySceneRef.current = new THREE.Scene();
+            overlaySceneRef.current.name = orientation;
         }
     }
 
-    const initCamera = () => {
-        const baseContainer = baseContainerRef.current
-
-        cameraRef.current = new OrthographicCamera(
-            baseContainer.clientWidth / -2,
-            baseContainer.clientWidth / 2,
-            baseContainer.clientHeight / 2,
-            baseContainer.clientHeight / -2,
+    function getOrthographicCamera(container) {
+        const camera = new OrthographicCamera(
+            container.clientWidth / -2,
+            container.clientWidth / 2,
+            container.clientHeight / 2,
+            container.clientHeight / -2,
             0.1,
             10000
         );
+        camera.position.z = 0;
+        camera.position.y = 0;
+        camera.position.x = 0;
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        return camera
+    }
+
+    const initCameras = () => {
+        const baseContainer = baseContainerRef.current
+        const baseScene = baseSceneRef.current
+        baseCameraRef.current = getOrthographicCamera(baseContainer);
+        baseScene.add(baseCameraRef.current)
+        if (hasOverlay) {
+            const overlayContainer = overlayContainerRef.current
+            const overlayScene = overlaySceneRef.current
+            overlayCameraRef.current = getOrthographicCamera(overlayContainer);
+            overlayCameraRef.current.name = "overlayCamera"
+            overlayScene.add(overlayCameraRef.current)
+        }
+
+    }
+
+    function getControls(camera, baseContainer) {
+        const controls = new TrackballOrthoControl(camera, baseContainer);
+        controls.staticMoving = true;
+        controls.noRotate = true;
+        return controls
     }
 
     const initControls = () => {
-        const camera = cameraRef.current
+        const baseCamera = baseCameraRef.current
         const baseContainer = baseContainerRef.current
-
-        controlsRef.current = new TrackballOrthoControl(camera, baseContainer);
-        controlsRef.current.staticMoving = true;
-        controlsRef.current.noRotate = true;
-        camera.controls = controlsRef.current;
+        baseControlsRef.current = getControls(baseCamera, baseContainer);
+        baseCamera.controls = baseControlsRef.current;
+        if (hasOverlay){
+            const overlayContainer = overlayContainerRef.current
+            const overlayCamera = overlayCameraRef.current
+            overlayControlsRef.current = getControls(overlayCamera, overlayContainer);
+            overlayCamera.controls = baseControlsRef.current;
+        }
     }
 
-    function updateCameraDimensions(container) {
-        cameraRef.current.canvas = {
+    function updateCameraDimensions(camera, container) {
+        camera.canvas = {
             width: container.clientWidth,
             height: container.clientHeight,
         };
     }
 
+    function positionCamera(container, camera, stack) {
+        // center camera and interactor to center of bounding box
+        const worldBB = stack.worldBoundingBox();
+        const lpsDims = new THREE.Vector3(
+            worldBB[1] - worldBB[0],
+            worldBB[3] - worldBB[2],
+            worldBB[5] - worldBB[4]
+        );
+        const box = {
+            center: stack.worldCenter().clone(),
+            halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+        };
+
+        updateCameraDimensions(camera, container);
+
+        camera.directions = [stack.xCosine, stack.yCosine, stack.zCosine];
+        camera.box = box;
+        camera.orientation = orientation;
+        camera.update();
+        camera.fitBox(2);
+    }
+
     useEffect(() => {
-        const camera = cameraRef.current
+        const baseCamera = baseCameraRef.current
         const baseContainer = baseContainerRef.current
 
         const stackHelper = new StackHelper(baseStack);
@@ -193,26 +251,8 @@ export default function DicomViewerView({
         stackHelper.orientation = orientationMap[orientation];
         baseSceneRef.current.add(stackHelper);
         stackHelperRef.current = stackHelper;
+        positionCamera(baseContainer, baseCamera, baseStack);
 
-        // center camera and interactor to center of bounding box
-        const worldBB = baseStack.worldBoundingBox();
-        const lpsDims = new THREE.Vector3(
-            worldBB[1] - worldBB[0],
-            worldBB[3] - worldBB[2],
-            worldBB[5] - worldBB[4]
-        );
-        const box = {
-            center: baseStack.worldCenter().clone(),
-            halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
-        };
-
-        updateCameraDimensions(baseContainer);
-
-        camera.directions = [baseStack.xCosine, baseStack.yCosine, baseStack.zCosine];
-        camera.box = box;
-        camera.orientation = orientation;
-        camera.update();
-        camera.fitBox(2);
     }, [baseStack]);
 
 
@@ -226,21 +266,24 @@ export default function DicomViewerView({
             stackHelper.orientation = orientationMap[orientation];
             overlaySceneRef.current.add(stackHelper);
             overlayStackHelperRef.current = stackHelper;
+            const overlayContainer = overlayContainerRef.current
+            const overLayCamera = overlayCameraRef.current
+            positionCamera(overlayContainer, overLayCamera, overlayStack);
         }
     }, [overlayStack, borderColor, helperLut]);
 
     // Handle resizes
     useEffect(() => {
         if (baseContainerRef.current) {
-            handleResize(baseContainerRef.current, baseRendererRef.current)
+            handleResize(baseContainerRef.current, baseCameraRef.current, baseRendererRef.current)
         }
         if (overlayRendererRef.current) {
-            handleResize(overlayContainerRef.current, overlayRendererRef.current)
+            handleResize(overlayContainerRef.current, overlayCameraRef.current, overlayRendererRef.current)
         }
     }, [size])
 
-    const handleResize = (container, renderer) => {
-        updateCameraDimensions(container)
+    const handleResize = (container, camera, renderer) => {
+        updateCameraDimensions(camera, container)
         setRendererSize(renderer, container)
     }
 
