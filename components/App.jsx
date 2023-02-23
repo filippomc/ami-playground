@@ -5,7 +5,7 @@ import {useState} from "react";
 
 
 export default function App() {
-    const [scenes, setScenes] = useState([])
+    const [scenesData, setScenesData] = useState([])
     let data = [
         'patient2/7002_t1_average_BRAINSABC.nii.gz',
         'patient1/7001_t1_average_BRAINSABC.nii.gz',
@@ -21,12 +21,13 @@ export default function App() {
         opacity: [[0, 1], [1, 1]],
     }
 
-    const handleDicomViewerMount = (scenes) => {
-        setScenes(scenes)
+    const handleDicomViewerMount = (scenesData) => {
+        setScenesData(scenesData)
     }
     return (
-        <Box sx={{height: "100vh", width: "100%", display: "flex", flexDirection: "row" }}>
-            <DicomViewerControls scenes={scenes}/>
+        <Box sx={{height: "100vh", width: "100%", display: "flex", flexDirection: "row"}}>
+            <DicomViewerControls scenes={scenesData.map(sceneData => sceneData.scene)}
+                                 containers={scenesData.map(sceneData => sceneData.container)}/>
             <DicomViewer files={files} lutData={lutData} onMount={handleDicomViewerMount}/>
         </Box>
     );

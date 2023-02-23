@@ -8,7 +8,7 @@ const axisMap = {
     'z': 'coronal'
 }
 
-export default function DicomViewerControls({scenes}) {
+export default function DicomViewerControls({scenes, containers}) {
 
     const [originalScenes, setOriginalScenes] = useState({})
 
@@ -37,22 +37,47 @@ export default function DicomViewerControls({scenes}) {
     }
 
     const onScaleChange = (event, newValue, axis) => {
+        // todo: apply side effects on other views
         const {orientation, camera} = getSceneData(axis)
         camera.zoom = getZoomValue(orientation, newValue);
         camera.updateProjectionMatrix();
     }
 
     const onRotationChange = (event, newValue, axis) => {
+        // todo: apply side effects on other views
         const {_, camera} = getSceneData(axis)
         camera.angle = newValue
     }
 
+    function getStyle(axis, newValue) {
+        switch (axis) {
+            case 'x':
+                if(newValue < 0) {
+                    return {style: 'left', value: `${newValue}px`}
+                } else {
+                    return {style: 'left', value: `${newValue}px`}
+                }
+            case 'y':
+                if(newValue < 0) {
+                    return {style: 'top', value: `${newValue*-1}px`}
+                } else {
+                    return {style: 'top', value: `${newValue*-1}px`}
+                }
+            default:
+                return null
+        }
+    }
+
     const onPositionChange = (event, newValue, axis) => {
-        // const orientation = axisMap[axis]
-        // const scene = scenes.find(scene => scene.name === orientation)
-        // const mesh = scene.children[1].children[0].children[0]
-        const {_, camera} = getSceneData(axis)
-        camera.translateZ(newValue)
+        // todo: apply side effects on other views
+        const orientation = axisMap[axis]
+        const container = containers.find(container => container.id === 'axial')
+        const styleData = getStyle(axis, newValue)
+
+        if(styleData) {
+            const {style, value} = styleData
+            container.style[style] = value
+        }
     }
 
     return (

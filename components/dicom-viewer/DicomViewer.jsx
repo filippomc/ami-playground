@@ -8,7 +8,7 @@ import HelpersLut from "ami.js/src/helpers/helpers.lut";
 
 export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
     const containerRef = useRef(null);
-    const overlayScenes = useRef([]);
+    const overlaysOnMount = useRef([]);
 
     const [stacks, setStacks] = useState([])
     const [helperLut, setHelperLut] = useState(null)
@@ -27,7 +27,7 @@ export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
             const overlayStack = series[1].stack[0];
             setStacks([baseStack, overlayStack])
             loader.free();
-            onMount(overlayScenes.current)
+            onMount(overlaysOnMount.current)
         })
     }
 
@@ -48,13 +48,17 @@ export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
         setHelperLut(helperLut)
     }
 
-    const addOverlayScene = (scene) => {
-        if(scene){
-            overlayScenes.current.push(scene)
+    const addOverlayData = (scene, container) => {
+        if(scene && container){
+            const data = {
+                scene,
+                container
+            }
+            overlaysOnMount.current.push(data)
         }
     }
 
-
+    // Orientation is also used as id for the overlay (so that we can use that in the controls)
     return stacks.length > 0 ? (
         <Box ref={containerRef} sx={{height: "100%", width: "100%",}}>
             <Box sx={{
@@ -69,11 +73,11 @@ export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
             </Box>
             <Box sx={{height: "100%", display: "flex", flexDirection: "row"}}>
                 <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
-                                 helperLut={helperLut} orientation={'axial'} onMount={addOverlayScene} />
+                                 helperLut={helperLut} orientation={'axial'} onMount={addOverlayData} />
                 <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
-                                 helperLut={helperLut} orientation={'coronal'} onMount={addOverlayScene}/>
+                                 helperLut={helperLut} orientation={'coronal'} onMount={addOverlayData}/>
                 <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}
-                                 helperLut={helperLut} orientation={'sagittal'} onMount={addOverlayScene}/>
+                                 helperLut={helperLut} orientation={'sagittal'} onMount={addOverlayData}/>
             </Box>
 
 

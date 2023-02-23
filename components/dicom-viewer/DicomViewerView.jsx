@@ -91,7 +91,7 @@ export default function DicomViewerView({
         initViewer()
         animate()
         subscribeEvents()
-        onMount(overlaySceneRef.current)
+        onMount(overlaySceneRef.current, overlayContainerRef.current)
         return () => {
             unSubscribeEvents()
         }
@@ -306,7 +306,7 @@ export default function DicomViewerView({
         <Box sx={{position: "relative", height: "100%", width: "100%"}}>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
             {hasOverlay &&
-                <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%", opacity: opacity}}
+                <Box id={orientation} sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%", opacity: opacity}}
                      ref={overlayContainerRef}/>}
         </Box>
     )
