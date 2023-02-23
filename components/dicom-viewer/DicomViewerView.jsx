@@ -256,6 +256,20 @@ export default function DicomViewerView({
     }, [baseStack]);
 
 
+    function setTransparentBackground(child) {
+        // TODO:
+    }
+
+    function cleanStack(stackHelper) {
+        for (let i = stackHelper.children.length - 1; i >= 0; i--) {
+            if (i !== 1) {
+                const child = stackHelper.children[i];
+                stackHelper.remove(child);
+            }
+        }
+        setTransparentBackground(stackHelper.children[0].children[0]);
+    }
+
     useEffect(() => {
         if (overlayStack && helperLut) {
             const stackHelper = new StackHelper(overlayStack);
@@ -264,6 +278,7 @@ export default function DicomViewerView({
             stackHelper.slice.lut = helperLut.lut;
             stackHelper.slice.lutTexture = helperLut.texture;
             stackHelper.orientation = orientationMap[orientation];
+            cleanStack(stackHelper)
             overlaySceneRef.current.add(stackHelper);
             overlayStackHelperRef.current = stackHelper;
             const overlayContainer = overlayContainerRef.current
