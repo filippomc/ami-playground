@@ -26,7 +26,7 @@ export default function DicomViewerView({
                                             borderColor,
                                             orientation,
                                             helperLut,
-                                            onMount,
+                                            onOverlayReady,
                                             opacity = "55%"
                                         }) {
     const baseContainerRef = useRef(null);
@@ -91,7 +91,6 @@ export default function DicomViewerView({
         initViewer()
         animate()
         subscribeEvents()
-        onMount(overlaySceneRef.current, overlayContainerRef.current)
         return () => {
             unSubscribeEvents()
         }
@@ -284,6 +283,7 @@ export default function DicomViewerView({
             const overlayContainer = overlayContainerRef.current
             const overLayCamera = overlayCameraRef.current
             positionCamera(overlayContainer, overLayCamera, overlayStack);
+            onOverlayReady(overlaySceneRef.current, overlayContainerRef.current, overlayStackHelperRef.current)
         }
     }, [overlayStack, borderColor, helperLut]);
 

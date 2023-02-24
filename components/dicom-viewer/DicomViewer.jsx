@@ -4,11 +4,13 @@ import * as AMI from "ami.js";
 import {colors, orderSeries} from '../../utils';
 import {Box} from "@mui/material";
 import HelpersLut from "ami.js/src/helpers/helpers.lut";
+import {axial, coronal, sagittal} from "./constants";
+import {viewHelperFactory} from "./ViewHelperFactory";
 
 
-export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
+export default function DicomViewer({mode, files, lutData, onOverlayReady, ...props}) {
     const containerRef = useRef(null);
-    const overlaysOnMount = useRef([]);
+    const overlaysData = useRef({});
 
     const [stacks, setStacks] = useState([])
     const [helperLut, setHelperLut] = useState(null)
@@ -27,7 +29,7 @@ export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
             const overlayStack = series[1].stack[0];
             setStacks([baseStack, overlayStack])
             loader.free();
-            onMount(overlaysOnMount.current)
+            onOverlayReady(overlaysData.current)
         })
     }
 
@@ -48,13 +50,14 @@ export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
         setHelperLut(helperLut)
     }
 
-    const addOverlayData = (scene, container) => {
-        if(scene && container){
+    const addOverlayData = (scene, container, stackHelper, orientation) => {
+        if (scene && container && stackHelper) {
             const data = {
                 scene,
-                container
+                container,
+                stackHelper
             }
-            overlaysOnMount.current.push(data)
+            overlaysData.current[orientation] = viewHelperFactory(data, orientation)
         }
     }
 
@@ -73,11 +76,14 @@ export default function DicomViewer({mode, files, lutData, onMount, ...props}) {
             </Box>
             <Box sx={{height: "100%", display: "flex", flexDirection: "row"}}>
                 <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
-                                 helperLut={helperLut} orientation={'axial'} onMount={addOverlayData} />
+                                 helperLut={helperLut} orientation={axial}
+                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, axial)}/>
                 <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
-                                 helperLut={helperLut} orientation={'coronal'} onMount={addOverlayData}/>
+                                 helperLut={helperLut} orientation={coronal}
+                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, coronal)}/>
                 <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}
-                                 helperLut={helperLut} orientation={'sagittal'} onMount={addOverlayData}/>
+                                 helperLut={helperLut} orientation={sagittal}
+                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, sagittal)}/>
             </Box>
 
 
