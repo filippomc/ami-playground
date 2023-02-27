@@ -8,12 +8,7 @@ export default class ViewHelper {
         this.container = container;
         this.stackHelper = stackHelper;
         this.camera = getCameraFromScene(scene)
-        this.sideLenght = this._getSideLength()
-    }
-
-    translate(axis, newValue) {
-        const {style, value} = getStyle(axis, newValue)
-        this.container.style[style] = value
+        this.sideLength = this._getSideLength()
     }
 
     _getSideLength() {
@@ -22,6 +17,18 @@ export default class ViewHelper {
         const distance = this.camera.position.distanceTo(mesh.position);
         return 2 * Math.tan( vFOV / 2 ) * distance * window.devicePixelRatio; // visible height
 
+    }
+
+    translate(axis, valuePercentage) {
+        const pixelsToMove = valuePercentage * this.sideLength / 100
+        const {style, value} = getStyle(axis, pixelsToMove)
+        this.container.style[style] = value
+    }
+
+    updateIndex(valuePercentage) {
+        // Translating the object on the Y axis makes the overlay stack helper index change from the sagittal perspective
+        const total = this.stackHelper._orientationMaxIndex
+        this.stackHelper.index = Math.floor(total * (valuePercentage/2+50) / 100)
     }
 }
 
