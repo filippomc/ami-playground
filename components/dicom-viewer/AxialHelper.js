@@ -30,4 +30,13 @@ export class AxialHelper extends ViewHelper {
     rotateZ(value) {
         super.rotate(value)
     }
+
+    scaleX(valuePercentage) {
+        super.scale(valuePercentage)
+    }
+    scaleY(valuePercentage) {
+    }
+    scaleZ(valuePercentage) {
+
+    }
 }

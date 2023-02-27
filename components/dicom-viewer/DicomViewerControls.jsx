@@ -1,6 +1,5 @@
 import {Container} from "@mui/material";
 import DicomViewerMultipleAxisControl from "./DicomViewerMultipleAxisControl";
-import {useEffect, useState} from "react";
 import {X, Y, Z} from "./constants";
 
 const axisMap = {
@@ -12,10 +11,16 @@ const axisMap = {
 export default function DicomViewerControls({viewHelpers}) {
 
     const onScaleChange = (event, newValue, axis) => {
-        // todo: apply side effects on other views
-        const {orientation, camera} = getSceneData(axis)
-        camera.zoom = getZoomValue(orientation, newValue);
-        camera.updateProjectionMatrix();
+        Object.values(viewHelpers).forEach(viewHelper => {
+            switch (axis) {
+                case X:
+                    return viewHelper.scaleX(newValue)
+                case Y:
+                    return viewHelper.scaleY(newValue)
+                case Z:
+                    return viewHelper.scaleZ(newValue)
+            }
+        })
     }
 
     const onRotationChange = (event, newValue, axis) => {
@@ -48,7 +53,7 @@ export default function DicomViewerControls({viewHelpers}) {
     const isDisabled = viewHelpers === undefined
     return (
         <Container sx={{display: "flex", flexDirection: "column", width: "10em"}}>
-            <DicomViewerMultipleAxisControl disabled={isDisabled} max={2} min={0} defaultValue={1} step={0.1}
+            <DicomViewerMultipleAxisControl disabled={isDisabled} max={100} min={-100} defaultValue={0} step={1}
                                             onChange={onScaleChange} title={"Scale"}/>
             <DicomViewerMultipleAxisControl disabled={isDisabled} max={180} min={-180} defaultValue={0} step={1}
                                             onChange={onRotationChange} title={"Rotation"}/>

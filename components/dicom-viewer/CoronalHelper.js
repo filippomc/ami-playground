@@ -27,8 +27,17 @@ export class CoronalHelper extends ViewHelper {
     rotateY(value) {
         super.rotate(value)
     }
-
     rotateZ(value) {
+
+    }
+
+    scaleX(valuePercentage) {
+
+    }
+    scaleY(valuePercentage) {
+        super.scale(valuePercentage)
+    }
+    scaleZ(valuePercentage) {
 
     }
 }

@@ -32,4 +32,13 @@ export class SagittalHelper extends ViewHelper{
     rotateZ(value) {
 
     }
+
+    scaleX(valuePercentage) {
+    }
+    scaleY(valuePercentage) {
+
+    }
+    scaleZ(valuePercentage) {
+        super.scale(valuePercentage)
+    }
 }

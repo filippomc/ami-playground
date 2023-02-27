@@ -9,6 +9,7 @@ export default class ViewHelper {
         this.stackHelper = stackHelper;
         this.camera = getCameraFromScene(scene)
         this.sideLength = this._getSideLength()
+        this.originalZoom = this.camera.zoom
     }
 
     _getSideLength() {
@@ -33,6 +34,11 @@ export default class ViewHelper {
 
     rotate(value) {
         this.camera.angle = value
+    }
+
+    scale(valuePercentage) {
+        this.camera.zoom = this.originalZoom + (valuePercentage/100 * this.originalZoom)
+        this.camera.updateProjectionMatrix();
     }
 }
 
