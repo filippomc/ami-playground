@@ -1,6 +1,7 @@
 import {Container} from "@mui/material";
 import DicomViewerMultipleAxisControl from "./DicomViewerMultipleAxisControl";
 import {useEffect, useState} from "react";
+import {X, Y, Z} from "./constants";
 
 const axisMap = {
     'x': 'axial',
@@ -26,11 +27,11 @@ export default function DicomViewerControls({viewHelpers}) {
     const onPositionChange = (event, newValue, axis) => {
         Object.values(viewHelpers).forEach(viewHelper => {
             switch (axis) {
-                case 'x':
+                case X:
                     return viewHelper.translateX(newValue)
-                case 'y':
+                case Y:
                     return viewHelper.translateY(newValue)
-                case 'z':
+                case Z:
                     return viewHelper.translateZ(newValue)
             }
         })

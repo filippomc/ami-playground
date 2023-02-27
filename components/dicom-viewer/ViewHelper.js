@@ -8,7 +8,7 @@ export default class ViewHelper {
         this.container = container;
         this.stackHelper = stackHelper;
         this.camera = getCameraFromScene(scene)
-        this.sideLength = this._getSideLength()
+        this.sideLenght = this._getSideLength()
     }
 
     translate(axis, newValue) {
