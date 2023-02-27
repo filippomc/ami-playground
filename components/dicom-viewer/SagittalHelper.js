@@ -16,11 +16,20 @@ export class SagittalHelper extends ViewHelper{
     translateY(valuePercentage) {
         // Translating the object on the Y axis makes the overlay stack helper index change from the sagittal perspective
         super.updateIndex(valuePercentage)
-
     }
 
     translateZ(valuePercentage) {
         // Translating the object on the Z axis makes the overlay move along the Y axis from the sagittal perspective
         super.translate(Y, valuePercentage)
+    }
+
+    rotateX(value) {
+        super.rotate(value)
+    }
+    rotateY(value) {
+
+    }
+    rotateZ(value) {
+
     }
 }

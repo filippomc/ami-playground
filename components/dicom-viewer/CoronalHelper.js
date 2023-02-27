@@ -20,4 +20,15 @@ export class CoronalHelper extends ViewHelper {
         // Translating the object on the Z axis makes the overlay move along the X axis from the coronal perspective
         super.translate(X, valuePercentage)
     }
+
+    rotateX(value) {
+
+    }
+    rotateY(value) {
+        super.rotate(value)
+    }
+
+    rotateZ(value) {
+
+    }
 }

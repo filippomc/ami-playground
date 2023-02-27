@@ -1,5 +1,5 @@
 import {X, Y} from "./constants";
-import {Box3, MathUtils, Vector3} from "three";
+import {MathUtils} from "three";
 
 export default class ViewHelper {
     constructor(data) {
@@ -29,6 +29,10 @@ export default class ViewHelper {
         // Translating the object on the Y axis makes the overlay stack helper index change from the sagittal perspective
         const total = this.stackHelper._orientationMaxIndex
         this.stackHelper.index = Math.floor(total * (valuePercentage/2+50) / 100)
+    }
+
+    rotate(value) {
+        this.camera.angle = value
     }
 }
 

@@ -19,9 +19,17 @@ export default function DicomViewerControls({viewHelpers}) {
     }
 
     const onRotationChange = (event, newValue, axis) => {
-        // todo: apply side effects on other views
-        const {_, camera} = getSceneData(axis)
-        camera.angle = newValue
+        Object.values(viewHelpers).forEach(viewHelper => {
+            switch (axis) {
+                case X:
+                    return viewHelper.rotateX(newValue)
+                case Y:
+                    return viewHelper.rotateY(newValue)
+                case Z:
+                    return viewHelper.rotateZ(newValue)
+            }
+        })
+
     }
 
     const onPositionChange = (event, newValue, axis) => {
@@ -35,7 +43,6 @@ export default function DicomViewerControls({viewHelpers}) {
                     return viewHelper.translateZ(newValue)
             }
         })
-
     }
 
     const isDisabled = viewHelpers === undefined
@@ -43,7 +50,7 @@ export default function DicomViewerControls({viewHelpers}) {
         <Container sx={{display: "flex", flexDirection: "column", width: "10em"}}>
             <DicomViewerMultipleAxisControl disabled={isDisabled} max={2} min={0} defaultValue={1} step={0.1}
                                             onChange={onScaleChange} title={"Scale"}/>
-            <DicomViewerMultipleAxisControl disabled={isDisabled} max={360} min={0} defaultValue={0} step={1}
+            <DicomViewerMultipleAxisControl disabled={isDisabled} max={180} min={-180} defaultValue={0} step={1}
                                             onChange={onRotationChange} title={"Rotation"}/>
             <DicomViewerMultipleAxisControl disabled={isDisabled} max={100} min={-100} defaultValue={0}
                                             step={1} onChange={onPositionChange} title={"Position"}/>

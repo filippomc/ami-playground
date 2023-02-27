@@ -20,4 +20,14 @@ export class AxialHelper extends ViewHelper {
         // Translating the object on the Z axis makes the overlay stack helper index change from the axial perspective
         super.updateIndex(valuePercentage)
     }
+
+    rotateX(value) {
+
+    }
+    rotateY(value) {
+
+    }
+    rotateZ(value) {
+        super.rotate(value)
+    }
 }
