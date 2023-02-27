@@ -79,7 +79,6 @@ export default function DicomViewerView({
                 stackHelper.index = stackHelper.index - 1;
             }
         }
-
     }
 
     const unSubscribeEvents = () => {
@@ -173,6 +172,7 @@ export default function DicomViewerView({
         camera.position.y = 0;
         camera.position.x = 0;
         camera.lookAt(new THREE.Vector3(0, 0, 0));
+        camera.fov = 50;
         return camera
     }
 
