@@ -34,11 +34,14 @@ export class SagittalHelper extends ViewHelper{
     }
 
     scaleX(valuePercentage) {
+        // Scaling the object on the X axis makes the overlay scale the X axis from the sagittal perspective
+        super.scale(X, valuePercentage)
     }
     scaleY(valuePercentage) {
 
     }
     scaleZ(valuePercentage) {
-        super.scale(Z, valuePercentage)
+        // Scaling the object on the Z axis makes the overlay scale the Y axis from the sagittal perspective
+        super.scale(Y, valuePercentage)
     }
 }

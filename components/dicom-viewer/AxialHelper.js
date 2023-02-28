@@ -32,12 +32,13 @@ export class AxialHelper extends ViewHelper {
     }
 
     scaleX(valuePercentage) {
-        super.scale(X, valuePercentage)
-    }
-    scaleY(valuePercentage) {
+        // Scaling the object on the X axis makes the overlay scale the Y axis from the axial perspective
         super.scale(Y, valuePercentage)
     }
+    scaleY(valuePercentage) {
+        // Scaling the object on the Y axis makes the overlay scale the X axis from the axial perspective
+        super.scale(X, valuePercentage)
+    }
     scaleZ(valuePercentage) {
-        super.scale(Z, valuePercentage)
     }
 }

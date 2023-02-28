@@ -35,8 +35,12 @@ export class CoronalHelper extends ViewHelper {
 
     }
     scaleY(valuePercentage) {
+        // Scaling the object on the Y axis makes the overlay scale the X axis from the axial coronal
+        super.scale(X, valuePercentage)
     }
     scaleZ(valuePercentage) {
+        // Scaling the object on the Z axis makes the overlay scale the Y axis from the axial coronal
+        super.scale(Y, valuePercentage)
 
     }
 }
