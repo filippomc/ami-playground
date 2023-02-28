@@ -1,4 +1,4 @@
-import {axial, coronal, sagittal} from "./constants";
+import {axial, coronal, sagittal} from "../../constants";
 import {AxialHelper} from "./AxialHelper";
 import {SagittalHelper} from "./SagittalHelper";
 import {CoronalHelper} from "./CoronalHelper";

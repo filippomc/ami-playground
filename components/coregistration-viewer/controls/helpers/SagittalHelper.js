@@ -1,5 +1,5 @@
 import ViewHelper from "./ViewHelper";
-import {X, Y, Z} from "./constants";
+import {X, Y, Z} from "../../constants";
 
 export class SagittalHelper extends ViewHelper{
     constructor(data) {

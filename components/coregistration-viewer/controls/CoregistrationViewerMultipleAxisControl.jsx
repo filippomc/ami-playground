@@ -1,6 +1,6 @@
 import {Box, Slider, Typography} from "@mui/material";
 
-export default function DicomViewerMultipleAxisControl({title, disabled, min, max, step, defaultValue, onChange}) {
+export default function CoregistrationViewerMultipleAxisControl({title, disabled, min, max, step, defaultValue, onChange}) {
     return (
         <Box>
             <Typography>{title}</Typography>

@@ -1,14 +1,14 @@
-import DicomViewerView from "./DicomViewerView";
+import CoregistrationViewerPerspective from "./CoregistrationViewerPerspective";
 import {useEffect, useRef, useState} from "react";
 import * as AMI from "ami.js";
 import {colors, orderSeries} from '../../utils';
 import {Box} from "@mui/material";
 import HelpersLut from "ami.js/src/helpers/helpers.lut";
 import {axial, coronal, sagittal} from "./constants";
-import {viewHelperFactory} from "./ViewHelperFactory";
+import {viewHelperFactory} from "./controls/helpers/ViewHelperFactory";
 
 
-export default function DicomViewer({mode, files, lutData, onOverlayReady, ...props}) {
+export default function CoregistrationViewer({mode, files, lutData, onOverlayReady, ...props}) {
     const containerRef = useRef(null);
     const overlaysData = useRef({});
 
@@ -75,15 +75,15 @@ export default function DicomViewer({mode, files, lutData, onOverlayReady, ...pr
                 <Box sx={{position: "relative"}} ref={newRef => setLutContainerRef(newRef)}></Box>
             </Box>
             <Box sx={{height: "100%", display: "flex", flexDirection: "row"}}>
-                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
-                                 helperLut={helperLut} orientation={axial}
-                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, axial)}/>
-                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
-                                 helperLut={helperLut} orientation={coronal}
-                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, coronal)}/>
-                <DicomViewerView baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}
-                                 helperLut={helperLut} orientation={sagittal}
-                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, sagittal)}/>
+                <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
+                                                 helperLut={helperLut} orientation={axial}
+                                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, axial)}/>
+                <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
+                                                 helperLut={helperLut} orientation={coronal}
+                                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, coronal)}/>
+                <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}
+                                                 helperLut={helperLut} orientation={sagittal}
+                                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, sagittal)}/>
             </Box>
 
 

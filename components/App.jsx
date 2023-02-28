@@ -1,6 +1,6 @@
-import DicomViewer from "./dicom-viewer/DicomViewer";
+import CoregistrationViewer from "./coregistration-viewer/CoregistrationViewer";
 import {Box} from "@mui/material";
-import DicomViewerControls from "./dicom-viewer/DicomViewerControls";
+import CoregistrationViewerControls from "./coregistration-viewer/controls/CoregistrationViewerControls";
 import {useState} from "react";
 
 
@@ -26,8 +26,8 @@ export default function App() {
     }
     return (
         <Box sx={{height: "100vh", width: "100%", display: "flex", flexDirection: "row"}}>
-            <DicomViewerControls viewHelpers={viewHelpers}/>
-            <DicomViewer files={files} lutData={lutData} onOverlayReady={handleDicomViewerMount}/>
+            <CoregistrationViewerControls viewHelpers={viewHelpers}/>
+            <CoregistrationViewer files={files} lutData={lutData} onOverlayReady={handleDicomViewerMount}/>
         </Box>
     );
 }

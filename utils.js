@@ -5,6 +5,7 @@ export const colors = {
   blue: 0x0000ff,
   green: 0x00ff00,
   darkGrey: 0x353535,
+  black: 0x00000000,
 };
 export const orderSeries = (files, series) => {
   return files.map((uri) => {

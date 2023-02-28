@@ -20,15 +20,15 @@ const orientationMap = {
     'coronal': 2,
 }
 
-export default function DicomViewerView({
-                                            baseStack,
-                                            overlayStack,
-                                            borderColor,
-                                            orientation,
-                                            helperLut,
-                                            onOverlayReady,
-                                            opacity = "55%"
-                                        }) {
+export default function CoregistrationViewerPerspective({
+                                                            baseStack,
+                                                            overlayStack,
+                                                            borderColor,
+                                                            orientation,
+                                                            helperLut,
+                                                            onOverlayReady,
+                                                            opacity = "55%"
+                                                        }) {
     const baseContainerRef = useRef(null);
     const overlayContainerRef = useRef(null);
 
@@ -135,7 +135,7 @@ export default function DicomViewerView({
             antialias: true,
         });
         setRendererSize(renderer, container);
-        renderer.setClearColor(colors.darkGrey, 1);
+        renderer.setClearColor(colors.black, 0);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
         return renderer
@@ -204,7 +204,7 @@ export default function DicomViewerView({
         const baseContainer = baseContainerRef.current
         baseControlsRef.current = getControls(baseCamera, baseContainer);
         baseCamera.controls = baseControlsRef.current;
-        if (hasOverlay){
+        if (hasOverlay) {
             const overlayContainer = overlayContainerRef.current
             const overlayCamera = overlayCameraRef.current
             overlayControlsRef.current = getControls(overlayCamera, overlayContainer);
@@ -256,10 +256,6 @@ export default function DicomViewerView({
     }, [baseStack]);
 
 
-    function setTransparentBackground(child) {
-        // TODO:
-    }
-
     function cleanStack(stackHelper) {
         for (let i = stackHelper.children.length - 1; i >= 0; i--) {
             if (i !== 1) {
@@ -267,7 +263,6 @@ export default function DicomViewerView({
                 stackHelper.remove(child);
             }
         }
-        setTransparentBackground(stackHelper.children[0].children[0]);
     }
 
     useEffect(() => {
@@ -307,7 +302,14 @@ export default function DicomViewerView({
         <Box sx={{position: "relative", height: "100%", width: "100%"}}>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
             {hasOverlay &&
-                <Box id={orientation} sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%", opacity: opacity}}
+                <Box id={orientation} sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    height: "100%",
+                    width: "100%",
+                    opacity: opacity,
+                }}
                      ref={overlayContainerRef}/>}
         </Box>
     )

@@ -1,4 +1,4 @@
-import {X, Y} from "./constants";
+import {X, Y} from "../../constants";
 import {MathUtils} from "three";
 
 export default class ViewHelper {
@@ -42,7 +42,7 @@ export default class ViewHelper {
     }
 
     scale(axis, valuePercentage) {
-        const scaleFactor = (valuePercentage / 100) + 0.9999 // fixme using 0.9999 instead of 1 to avoid division by 0
+        const scaleFactor = (valuePercentage / 100) + 1
 
         switch (axis) {
             case X:

@@ -1,5 +1,5 @@
 import ViewHelper from "./ViewHelper";
-import {X, Y} from "./constants";
+import {X, Y} from "../../constants";
 
 export class CoronalHelper extends ViewHelper {
     constructor(data) {

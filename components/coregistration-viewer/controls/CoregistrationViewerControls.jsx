@@ -1,14 +1,8 @@
 import {Container} from "@mui/material";
-import DicomViewerMultipleAxisControl from "./DicomViewerMultipleAxisControl";
-import {X, Y, Z} from "./constants";
+import CoregistrationViewerMultipleAxisControl from "./CoregistrationViewerMultipleAxisControl";
+import {X, Y, Z} from "../constants";
 
-const axisMap = {
-    'x': 'axial',
-    'y': 'sagittal',
-    'z': 'coronal'
-}
-
-export default function DicomViewerControls({viewHelpers}) {
+export default function CoregistrationViewerControls({viewHelpers}) {
 
     const onScaleChange = (event, newValue, axis) => {
         Object.values(viewHelpers).forEach(viewHelper => {
@@ -53,12 +47,12 @@ export default function DicomViewerControls({viewHelpers}) {
     const isDisabled = viewHelpers === undefined
     return (
         <Container sx={{display: "flex", flexDirection: "column", width: "10em"}}>
-            <DicomViewerMultipleAxisControl disabled={isDisabled} max={100} min={-100} defaultValue={0} step={1}
-                                            onChange={onScaleChange} title={"Scale"}/>
-            <DicomViewerMultipleAxisControl disabled={isDisabled} max={180} min={-180} defaultValue={0} step={1}
-                                            onChange={onRotationChange} title={"Rotation"}/>
-            <DicomViewerMultipleAxisControl disabled={isDisabled} max={100} min={-100} defaultValue={0}
-                                            step={1} onChange={onPositionChange} title={"Position"}/>
+            <CoregistrationViewerMultipleAxisControl disabled={isDisabled} max={10} min={-10} defaultValue={0} step={1}
+                                                     onChange={onScaleChange} title={"Scale"}/>
+            <CoregistrationViewerMultipleAxisControl disabled={isDisabled} max={180} min={-180} defaultValue={0} step={1}
+                                                     onChange={onRotationChange} title={"Rotation"}/>
+            <CoregistrationViewerMultipleAxisControl disabled={isDisabled} max={10} min={-10} defaultValue={0}
+                                                     step={1} onChange={onPositionChange} title={"Position"}/>
         </Container>
     );
 }
