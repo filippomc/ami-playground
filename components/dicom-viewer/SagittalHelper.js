@@ -24,10 +24,9 @@ export class SagittalHelper extends ViewHelper{
     }
 
     rotateX(value) {
-        super.rotate(value)
     }
     rotateY(value) {
-
+        super.rotate(value)
     }
     rotateZ(value) {
 

@@ -22,11 +22,12 @@ export class CoronalHelper extends ViewHelper {
     }
 
     rotateX(value) {
-
-    }
-    rotateY(value) {
         super.rotate(value)
     }
+
+    rotateY(value) {
+    }
+
     rotateZ(value) {
 
     }
@@ -34,10 +35,12 @@ export class CoronalHelper extends ViewHelper {
     scaleX(valuePercentage) {
 
     }
+
     scaleY(valuePercentage) {
         // Scaling the object on the Y axis makes the overlay scale the X axis from the axial coronal
         super.scale(X, valuePercentage)
     }
+
     scaleZ(valuePercentage) {
         // Scaling the object on the Z axis makes the overlay scale the Y axis from the axial coronal
         super.scale(Y, valuePercentage)

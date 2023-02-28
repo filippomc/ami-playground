@@ -42,7 +42,7 @@ export default class ViewHelper {
     }
 
     scale(axis, valuePercentage) {
-        const scaleFactor = (valuePercentage / 100) + 0.9999
+        const scaleFactor = (valuePercentage / 100) + 0.9999 // fixme using 0.9999 instead of 1 to avoid division by 0
 
         switch (axis) {
             case X:
