@@ -35,7 +35,6 @@ export class CoronalHelper extends ViewHelper {
 
     }
     scaleY(valuePercentage) {
-        super.scale(valuePercentage)
     }
     scaleZ(valuePercentage) {
 

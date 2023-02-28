@@ -1,5 +1,5 @@
 import ViewHelper from "./ViewHelper";
-import {X, Y} from "./constants";
+import {X, Y, Z} from "./constants";
 
 export class SagittalHelper extends ViewHelper{
     constructor(data) {
@@ -39,6 +39,6 @@ export class SagittalHelper extends ViewHelper{
 
     }
     scaleZ(valuePercentage) {
-        super.scale(valuePercentage)
+        super.scale(Z, valuePercentage)
     }
 }

@@ -173,6 +173,7 @@ export default function DicomViewerView({
         camera.position.x = 0;
         camera.lookAt(new THREE.Vector3(0, 0, 0));
         camera.fov = 50;
+        camera.aspect = 1;
         return camera
     }
 

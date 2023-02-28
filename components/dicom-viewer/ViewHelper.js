@@ -9,7 +9,12 @@ export default class ViewHelper {
         this.stackHelper = stackHelper;
         this.camera = getCameraFromScene(scene)
         this.sideLength = this._getSideLength()
-        this.originalZoom = this.camera.zoom
+        this.originalCameraValues = {
+            left: this.camera.left,
+            right: this.camera.right,
+            top: this.camera.top,
+            bottom: this.camera.bottom
+        }
     }
 
     _getSideLength() {
@@ -36,8 +41,20 @@ export default class ViewHelper {
         this.camera.angle = value
     }
 
-    scale(valuePercentage) {
-        this.camera.zoom = this.originalZoom + (valuePercentage/100 * this.originalZoom)
+    scale(axis, valuePercentage) {
+        const scaleFactor = (valuePercentage / 100) + 0.9999
+
+        switch (axis) {
+            case X:
+                this.camera.left = this.originalCameraValues.left * 1/scaleFactor
+                this.camera.right = this.originalCameraValues.right * 1/scaleFactor
+                break
+            case Y:
+                this.camera.top = this.originalCameraValues.top * 1/scaleFactor
+                this.camera.bottom = this.originalCameraValues.bottom * 1/scaleFactor
+                break
+
+        }
         this.camera.updateProjectionMatrix();
     }
 }
@@ -47,6 +64,8 @@ export default class ViewHelper {
 function getCameraFromScene(scene) {
     return scene.getObjectByName('overlayCamera');
 }
+
+
 
 function getStyle(axis, newValue) {
     switch (axis) {
