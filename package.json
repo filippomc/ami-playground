@@ -3,6 +3,8 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@mui/material": "^5.11.9",
+    "@parcel/config-default": "^2.8.3",
+    "@parcel/core": "^2.8.3",
     "@react-hook/resize-observer": "^1.2.6",
     "ami.js": ">=0.32.0",
     "dat.gui": "^0.7.9",
@@ -15,7 +17,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "devDependencies": {
-    "mocha": "^10.2.0"
+    "mocha": "^10.2.0",
+    "parcel-reporter-static-files-copy": "^1.5.0"
   },
   "scripts": {
     "test": "mocha"

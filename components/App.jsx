@@ -7,11 +7,11 @@ import {useState} from "react";
 export default function App() {
     const [viewHelpers, setViewHelpers] = useState(undefined)
     let data = [
-        'patient2/7002_t1_average_BRAINSABC.nii.gz',
-        'patient1/7001_t1_average_BRAINSABC.nii.gz',
-    ];
+        'base.mgz',
+        'overlay.nii.gz'
+    ]
     let files = data.map(function (v) {
-        return 'https://cdn.rawgit.com/FNNDSC/data/master/nifti/slicer_brain/' + v;
+        return 'http://localhost:1234/' + v;
     });
 
     const lutData = {
