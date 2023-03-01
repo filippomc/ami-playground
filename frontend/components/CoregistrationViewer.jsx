@@ -6,11 +6,15 @@ import CoregistrationViewerControls from "./CoregistrationControls";
 
 
 function CoregistrationViewer() {
+    const socket = io(SERVER_URL);
     const [images, setImages] = useState([]);
 
     useEffect(() => {
-        const socket = io(SERVER_URL);
+
+        // todo: confirm socket is connected
+
         socket.on('images', (base64Images) => {
+            console.log("called")
             setImages(base64Images);
         });
 
@@ -21,7 +25,7 @@ function CoregistrationViewer() {
     }, []);
 
     const onControlsChange = (transform, axis, amount) => {
-        console.log(transform, axis, amount);
+        socket.emit('transform', transform, axis, amount);
     }
 
     return (

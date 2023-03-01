@@ -1,6 +1,5 @@
 import {Container} from "@mui/material";
 import CoregistrationViewerMultipleAxisControl from "./CoregistrationViewerMultipleAxisControl";
-import {X, Y, Z} from "../constants";
 
 export default function CoregistrationViewerControls({onChange}) {
 

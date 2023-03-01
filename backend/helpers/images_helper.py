@@ -1,11 +1,13 @@
 import base64
 import io
 
+import mne as mne
 import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
 
-from backend.settings import orientation_map, base_file, overlay_file
+from backend.helpers.transforms_helpers import get_affine_matrix
+from backend.settings import orientation_map
 
 
 def _generate_image(base, overlay, orientation, alpha=0.5):
@@ -40,7 +42,6 @@ def _generate_image(base, overlay, orientation, alpha=0.5):
 
 def get_image(base, overlay, orientation, alpha=0.5):
     fig = _generate_image(base, overlay, orientation, alpha)
-
     # Save the figure to a BytesIO object
     buf = io.BytesIO()
     fig.savefig(buf, format='png', transparent=True)
@@ -48,6 +49,6 @@ def get_image(base, overlay, orientation, alpha=0.5):
     return base64.b64encode(buf.getvalue()).decode('utf-8')
 
 
-if __name__ == '__main__':
-    _generate_image(base_file, overlay_file, 'sagittal')
-    plt.show()
+def get_aligned_overlay(base, overlay, transform, axis, value):
+    return mne.transforms.apply_volume_registration(base, overlay, get_affine_matrix(transform, axis, value), cval='1%')
+
