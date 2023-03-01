@@ -67,6 +67,8 @@ def _position_matrix(axis, value):
 
 
 def get_affine_matrix(transform_type, axis, value):
+    # todo: Fix numpy.linalg.LinAlgError: Singular matrix
+    # todo: convert value to percentage
     # Build the appropriate affine transformation matrix
     if transform_type == 'rotation':
         aff_mat = np.eye(4)

@@ -9,14 +9,11 @@ function CoregistrationViewer() {
     const socket = io(SERVER_URL);
     const [images, setImages] = useState([]);
 
+    socket.on('images', (base64Images) => {
+        setImages(base64Images);
+    });
+
     useEffect(() => {
-
-        // todo: confirm socket is connected
-
-        socket.on('images', (base64Images) => {
-            console.log("called")
-            setImages(base64Images);
-        });
 
         // Send a "start" event to the server to start the image stream
         socket.emit('start');
@@ -25,6 +22,7 @@ function CoregistrationViewer() {
     }, []);
 
     const onControlsChange = (transform, axis, amount) => {
+        // todo: add debounce
         socket.emit('transform', transform, axis, amount);
     }
 

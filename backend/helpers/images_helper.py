@@ -46,6 +46,7 @@ def get_image(base, overlay, orientation, alpha=0.5):
     buf = io.BytesIO()
     fig.savefig(buf, format='png', transparent=True)
     buf.seek(0)
+    plt.close('all')
     return base64.b64encode(buf.getvalue()).decode('utf-8')
 
 
