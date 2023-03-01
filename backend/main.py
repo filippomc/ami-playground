@@ -1,17 +1,28 @@
 import socketio
 
+from backend.services.images_service import get_images
+
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 app = socketio.ASGIApp(sio)
 
 
-@sio.event
-async def connect(sid, *args, **kwargs):
-    print(sid, 'connected')
+# Define a Socket.IO event handler for when clients connect
+@sio.on('connect')
+async def connect(sid, environ):
+    print('Client connected:', sid)
 
 
-@sio.event
-async def disconnect(sid, *args, **kwargs):
-    print(sid, 'disconnected')
+# Define a Socket.IO event handler for when clients disconnect
+@sio.on('disconnect')
+async def disconnect(sid):
+    print('Client disconnected:', sid)
+
+
+# Define a Socket.IO event handler for when clients send a "start" event
+@sio.on('start')
+async def start(sid):
+    print('Starting image stream for client:', sid)
+    await sio.emit('images', get_images(), room=sid)
 
 
 if __name__ == '__main__':
