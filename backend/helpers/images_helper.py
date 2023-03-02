@@ -53,4 +53,5 @@ def get_image(overlay, orientation, alpha=0.5):
 
 
 def get_aligned_overlay(overlay, transform, axis, value):
-    return mne.transforms.apply_volume_registration(base_data, overlay, get_affine_matrix(base, transform, axis, value), cval='1%')
+    return mne.transforms.apply_volume_registration(base_data, overlay, get_affine_matrix(base, transform, axis, value),
+                                                    cval='1%')

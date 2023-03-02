@@ -75,15 +75,15 @@ def get_affine_matrix(base, transform_type, axis, value):
         aff_mat = np.eye(4)
         aff_mat[:3, :3] = _rotation_matrix(axis, value)
     elif transform_type == 'scale':
-        aff_mat = _scale_matrix(axis, _get_effective_value(base, value, axis))
+        aff_mat = _scale_matrix(axis, value)
     elif transform_type == 'position':
-        aff_mat = _position_matrix(axis, _get_effective_value(base, value, axis))
+        aff_mat = _position_matrix(axis, _get_effective_value(base, value))
     else:
         raise ValueError(f"Invalid transform type: {transform_type}")
     return aff_mat
 
 
-def _get_effective_value(voxels, percentage_value, axis, voxel_size=VOXEL_SIZE):
+def _get_effective_value(voxels, percentage_value, voxel_size=VOXEL_SIZE):
     # Calculate the physical dimensions of the object in each axis
     num_voxels = len(voxels)
     dimensions = num_voxels * voxel_size
