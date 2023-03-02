@@ -10,3 +10,5 @@ orientation_map = {
     'sagittal': 0,
     'coronal': 1
 }
+
+VOXEL_SIZE = 1  # mm

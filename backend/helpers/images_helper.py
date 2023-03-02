@@ -7,20 +7,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from backend.helpers.transforms_helpers import get_affine_matrix
-from backend.settings import orientation_map
+from backend.settings import orientation_map, base_data, VOXEL_SIZE
+
+base = nib.orientations.apply_orientation(
+    np.asarray(base_data.dataobj), nib.orientations.axcodes2ornt(
+        nib.orientations.aff2axcodes(base_data.affine))).astype(np.float32)
 
 
-def _generate_image(base, overlay, orientation, alpha=0.5):
+def _generate_image(overlay, orientation, alpha=0.5):
     """Define a helper function for comparing plots."""
-    base = nib.orientations.apply_orientation(
-        np.asarray(base.dataobj), nib.orientations.axcodes2ornt(
-            nib.orientations.aff2axcodes(base.affine))).astype(np.float32)
+
     overlay = nib.orientations.apply_orientation(
         np.asarray(overlay.dataobj), nib.orientations.axcodes2ornt(
             nib.orientations.aff2axcodes(overlay.affine))).astype(np.float32)
 
     # Set the physical size of each voxel (in millimeters)
-    voxel_size = 1
+    voxel_size = VOXEL_SIZE
 
     image_size = len(base)
 
@@ -40,8 +42,8 @@ def _generate_image(base, overlay, orientation, alpha=0.5):
     return fig
 
 
-def get_image(base, overlay, orientation, alpha=0.5):
-    fig = _generate_image(base, overlay, orientation, alpha)
+def get_image(overlay, orientation, alpha=0.5):
+    fig = _generate_image(overlay, orientation, alpha)
     # Save the figure to a BytesIO object
     buf = io.BytesIO()
     fig.savefig(buf, format='png', transparent=True)
@@ -50,6 +52,5 @@ def get_image(base, overlay, orientation, alpha=0.5):
     return base64.b64encode(buf.getvalue()).decode('utf-8')
 
 
-def get_aligned_overlay(base, overlay, transform, axis, value):
-    return mne.transforms.apply_volume_registration(base, overlay, get_affine_matrix(transform, axis, value), cval='1%')
-
+def get_aligned_overlay(overlay, transform, axis, value):
+    return mne.transforms.apply_volume_registration(base_data, overlay, get_affine_matrix(base, transform, axis, value), cval='1%')

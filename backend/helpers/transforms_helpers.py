@@ -2,6 +2,8 @@ import math
 
 import numpy as np
 
+from backend.settings import VOXEL_SIZE
+
 
 def _rotation_matrix(axis, angle):
     """
@@ -66,17 +68,27 @@ def _position_matrix(axis, value):
     return pos_mat
 
 
-def get_affine_matrix(transform_type, axis, value):
+def get_affine_matrix(base, transform_type, axis, value):
     # todo: Fix numpy.linalg.LinAlgError: Singular matrix
-    # todo: convert value to percentage
     # Build the appropriate affine transformation matrix
     if transform_type == 'rotation':
         aff_mat = np.eye(4)
         aff_mat[:3, :3] = _rotation_matrix(axis, value)
     elif transform_type == 'scale':
-        aff_mat = _scale_matrix(axis, value)
+        aff_mat = _scale_matrix(axis, _get_effective_value(base, value, axis))
     elif transform_type == 'position':
-        aff_mat = _position_matrix(axis, value)
+        aff_mat = _position_matrix(axis, _get_effective_value(base, value, axis))
     else:
         raise ValueError(f"Invalid transform type: {transform_type}")
     return aff_mat
+
+
+def _get_effective_value(voxels, percentage_value, axis, voxel_size=VOXEL_SIZE):
+    # Calculate the physical dimensions of the object in each axis
+    num_voxels = len(voxels)
+    dimensions = num_voxels * voxel_size
+
+    # Calculate the effective value in distance units
+    effective_value = dimensions * percentage_value / 100.0
+
+    return effective_value
