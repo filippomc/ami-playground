@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import {DEBOUNCE, POSITION, ROTATION, SCALE, SERVER_URL} from "../constants";
 import CoregistrationViewerControls from "./CoregistrationControls";
 import {useDebouncedEffect} from "../hooks/useDebouncedEffect";
+import Loader from "./Loader";
 
 
 function CoregistrationViewer() {
@@ -11,8 +12,10 @@ function CoregistrationViewer() {
     const [positionTransform, setPositionTransform] = useState(null)
     const [rotationTransform, setRotationTransform] = useState(null)
     const [scaleTransform, setScaleTransform] = useState(null)
+    const [loading, setLoading] = useState(false);
 
     socket.on('images', (base64Images) => {
+        setLoading(false)
         setImages(base64Images);
     });
 
@@ -38,16 +41,31 @@ function CoregistrationViewer() {
         }
     }
 
-    useDebouncedEffect(() => scaleTransform && socket.emit('transform', SCALE, scaleTransform.axis, scaleTransform.amount),
+    useDebouncedEffect(() => {
+            if (scaleTransform) {
+                setLoading(true)
+                socket.emit('transform', SCALE, scaleTransform.axis, scaleTransform.amount)
+            }
+        },
         [scaleTransform], DEBOUNCE);
-    useDebouncedEffect(() => rotationTransform && socket.emit('transform', ROTATION, rotationTransform.axis, rotationTransform.amount),
+    useDebouncedEffect(() => {
+            if (rotationTransform) {
+                setLoading(true)
+                socket.emit('transform', ROTATION, rotationTransform.axis, rotationTransform.amount)
+            }
+        },
         [rotationTransform], DEBOUNCE);
-    useDebouncedEffect(() => positionTransform && socket.emit('transform', POSITION, positionTransform.axis, positionTransform.amount),
+    useDebouncedEffect(() => {
+            if (positionTransform) {
+                setLoading(true)
+                socket.emit('transform', POSITION, positionTransform.axis, positionTransform.amount)
+            }
+        },
         [positionTransform], DEBOUNCE);
-
 
     return (
         <div style={{display: "flex", flexDirection: 'row', alignItems: 'center'}}>
+            <Loader open={loading}/>
             <CoregistrationViewerControls onChange={onControlsChange}/>
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 {images.map((base64Image, index) => (
