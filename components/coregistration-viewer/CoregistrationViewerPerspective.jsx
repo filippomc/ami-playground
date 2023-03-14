@@ -154,7 +154,7 @@ export default function CoregistrationViewerPerspective({
     }
 
     function getOrthographicCamera(container) {
-        return new OrthographicCamera(
+        const camera =  new OrthographicCamera(
             container.clientWidth / -2,
             container.clientWidth / 2,
             container.clientHeight / 2,
@@ -162,6 +162,9 @@ export default function CoregistrationViewerPerspective({
             1,
             1000
         )
+        camera.fov = 50;
+        camera.aspect = 1;
+        return camera
     }
 
     const initCameras = () => {
