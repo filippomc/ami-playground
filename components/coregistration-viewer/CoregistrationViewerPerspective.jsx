@@ -14,12 +14,6 @@ const StackHelper = AMI.stackHelperFactory(THREE);
 const OrthographicCamera = AMI.orthographicCameraFactory(THREE);
 const TrackballOrthoControl = AMI.trackballOrthoControlFactory(THREE);
 
-const orientationMap = {
-    'axial': 0,
-    'sagittal': 1,
-    'coronal': 2,
-}
-
 export default function CoregistrationViewerPerspective({
                                                             baseStack,
                                                             overlayStack,
@@ -160,21 +154,14 @@ export default function CoregistrationViewerPerspective({
     }
 
     function getOrthographicCamera(container) {
-        const camera = new OrthographicCamera(
+        return new OrthographicCamera(
             container.clientWidth / -2,
             container.clientWidth / 2,
             container.clientHeight / 2,
             container.clientHeight / -2,
-            0.1,
-            10000
-        );
-        camera.position.z = 0;
-        camera.position.y = 0;
-        camera.position.x = 0;
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
-        camera.fov = 50;
-        camera.aspect = 1;
-        return camera
+            1,
+            1000
+        )
     }
 
     const initCameras = () => {
@@ -221,15 +208,19 @@ export default function CoregistrationViewerPerspective({
 
     function positionCamera(container, camera, stack) {
         // center camera and interactor to center of bounding box
+        const centerLPS = stack.worldCenter()
+        camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
+        camera.updateProjectionMatrix();
+
         const worldBB = stack.worldBoundingBox();
         const lpsDims = new THREE.Vector3(
-            worldBB[1] - worldBB[0],
-            worldBB[3] - worldBB[2],
-            worldBB[5] - worldBB[4]
+            (worldBB[1] - worldBB[0]) / 2,
+            (worldBB[3] - worldBB[2]) / 2,
+            (worldBB[5] - worldBB[4]) / 2
         );
         const box = {
             center: stack.worldCenter().clone(),
-            halfDimensions: new THREE.Vector3(lpsDims.x + 10, lpsDims.y + 10, lpsDims.z + 10),
+            halfDimensions: new THREE.Vector3(lpsDims.x + 5, lpsDims.y + 5, lpsDims.z + 5),
         };
 
         updateCameraDimensions(camera, container);
@@ -238,7 +229,7 @@ export default function CoregistrationViewerPerspective({
         camera.box = box;
         camera.orientation = orientation;
         camera.update();
-        camera.fitBox(2);
+        camera.fitBox(2,1);
     }
 
     useEffect(() => {
@@ -248,10 +239,10 @@ export default function CoregistrationViewerPerspective({
         const stackHelper = new StackHelper(baseStack);
         stackHelper.bbox.visible = false;
         stackHelper.border.color = colors.darkGrey;
-        stackHelper.orientation = orientationMap[orientation];
         baseSceneRef.current.add(stackHelper);
         stackHelperRef.current = stackHelper;
         positionCamera(baseContainer, baseCamera, baseStack);
+        stackHelper.orientation = baseCamera.stackOrientation
 
     }, [baseStack]);
 
@@ -272,13 +263,13 @@ export default function CoregistrationViewerPerspective({
             stackHelper.border.color = borderColor;
             stackHelper.slice.lut = helperLut.lut;
             stackHelper.slice.lutTexture = helperLut.texture;
-            stackHelper.orientation = orientationMap[orientation];
             cleanStack(stackHelper)
             overlaySceneRef.current.add(stackHelper);
             overlayStackHelperRef.current = stackHelper;
             const overlayContainer = overlayContainerRef.current
-            const overLayCamera = overlayCameraRef.current
-            positionCamera(overlayContainer, overLayCamera, overlayStack);
+            const overlayCamera = overlayCameraRef.current
+            positionCamera(overlayContainer, overlayCamera, overlayStack);
+            stackHelper.orientation = overlayCamera.stackOrientation
             onOverlayReady(overlaySceneRef.current, overlayContainerRef.current, overlayStackHelperRef.current)
         }
     }, [overlayStack, borderColor, helperLut]);
