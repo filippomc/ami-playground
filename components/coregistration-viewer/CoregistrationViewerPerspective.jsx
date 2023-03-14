@@ -206,7 +206,7 @@ export default function CoregistrationViewerPerspective({
         };
     }
 
-    function positionCamera(container, camera, stack) {
+    function updateCamera(container, camera, stack) {
         // center camera and interactor to center of bounding box
         const centerLPS = stack.worldCenter()
         camera.lookAt(centerLPS.x, centerLPS.y, centerLPS.z);
@@ -241,7 +241,7 @@ export default function CoregistrationViewerPerspective({
         stackHelper.border.color = colors.darkGrey;
         baseSceneRef.current.add(stackHelper);
         stackHelperRef.current = stackHelper;
-        positionCamera(baseContainer, baseCamera, baseStack);
+        updateCamera(baseContainer, baseCamera, baseStack);
         stackHelper.orientation = baseCamera.stackOrientation
 
     }, [baseStack]);
@@ -268,7 +268,7 @@ export default function CoregistrationViewerPerspective({
             overlayStackHelperRef.current = stackHelper;
             const overlayContainer = overlayContainerRef.current
             const overlayCamera = overlayCameraRef.current
-            positionCamera(overlayContainer, overlayCamera, overlayStack);
+            updateCamera(overlayContainer, overlayCamera, overlayStack);
             stackHelper.orientation = overlayCamera.stackOrientation
             onOverlayReady(overlaySceneRef.current, overlayContainerRef.current, overlayStackHelperRef.current)
         }
