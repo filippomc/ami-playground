@@ -20,7 +20,6 @@ export default function CoregistrationViewerPerspective({
                                                             borderColor,
                                                             orientation,
                                                             helperLut,
-                                                            onOverlayReady,
                                                             opacity = "55%"
                                                         }) {
     const baseContainerRef = useRef(null);
@@ -41,14 +40,11 @@ export default function CoregistrationViewerPerspective({
     const baseControlsRef = useRef(null)
     const overlayControlsRef = useRef(null)
 
-    const size = useSize(baseContainerRef)
-
     const hasOverlay = overlayStack !== undefined
 
     const subscribeEvents = () => {
         const container = hasOverlay ? overlayContainerRef.current : baseContainerRef.current
         container.addEventListener('wheel', handleScroll);
-        document.addEventListener('resize', () => console.log("Test"));
     }
 
     const handleScroll = (event) => {
@@ -273,24 +269,9 @@ export default function CoregistrationViewerPerspective({
             const overlayCamera = overlayCameraRef.current
             updateCamera(overlayContainer, overlayCamera, overlayStack);
             stackHelper.orientation = overlayCamera.stackOrientation
-            onOverlayReady(overlaySceneRef.current, overlayContainerRef.current, overlayStackHelperRef.current)
         }
     }, [overlayStack, borderColor, helperLut]);
 
-    // Handle resizes
-    useEffect(() => {
-        if (baseContainerRef.current) {
-            handleResize(baseContainerRef.current, baseCameraRef.current, baseRendererRef.current)
-        }
-        if (overlayRendererRef.current) {
-            handleResize(overlayContainerRef.current, overlayCameraRef.current, overlayRendererRef.current)
-        }
-    }, [size])
-
-    const handleResize = (container, camera, renderer) => {
-        updateCameraDimensions(camera, container)
-        setRendererSize(renderer, container)
-    }
 
     return (
         <Box sx={{position: "relative", height: "100%", width: "100%"}}>

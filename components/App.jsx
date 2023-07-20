@@ -5,9 +5,8 @@ import {useState} from "react";
 
 
 export default function App() {
-    const [viewHelpers, setViewHelpers] = useState(undefined)
     let data = [
-        'base.mgz',
+        'base.nii.gz',
         'overlay.nii.gz'
     ]
     let files = data.map(function (v) {
@@ -22,11 +21,9 @@ export default function App() {
     }
 
     const handleDicomViewerMount = (vh) => {
-        setViewHelpers(vh)
     }
     return (
         <Box sx={{height: "100vh", width: "100%", display: "flex", flexDirection: "row"}}>
-            <CoregistrationViewerControls viewHelpers={viewHelpers}/>
             <CoregistrationViewer files={files} lutData={lutData} onOverlayReady={handleDicomViewerMount}/>
         </Box>
     );

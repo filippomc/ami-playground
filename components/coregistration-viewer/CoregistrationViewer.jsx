@@ -50,16 +50,6 @@ export default function CoregistrationViewer({mode, files, lutData, onOverlayRea
         setHelperLut(helperLut)
     }
 
-    const addOverlayData = (scene, container, stackHelper, orientation) => {
-        if (scene && container && stackHelper) {
-            const data = {
-                scene,
-                container,
-                stackHelper
-            }
-            overlaysData.current[orientation] = viewHelperFactory(data, orientation)
-        }
-    }
 
     // Orientation is also used as id for the overlay (so that we can use that in the controls)
     return stacks.length > 0 ? (
@@ -77,13 +67,13 @@ export default function CoregistrationViewer({mode, files, lutData, onOverlayRea
             <Box sx={{height: "100%", display: "flex", flexDirection: "row"}}>
                 <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
                                                  helperLut={helperLut} orientation={axial}
-                                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, axial)}/>
+                                                 />
                 <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
                                                  helperLut={helperLut} orientation={coronal}
-                                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, coronal)}/>
+                                                 />
                 <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}
                                                  helperLut={helperLut} orientation={sagittal}
-                                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, sagittal)}/>
+                                                 />
             </Box>
 
 
