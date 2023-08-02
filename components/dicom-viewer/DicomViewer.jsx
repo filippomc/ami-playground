@@ -14,10 +14,15 @@ import {
 
 const StackHelper = AMI.stackHelperFactory(THREE);
 const OrthographicCamera = AMI.orthographicCameraFactory(THREE);
-const TrackballOrthoControls = AMI.trackballOrthoControlFactory(THREE);
+const TrackballOrthoControls = AMI.trackballOrthoControlFactory(THREE)
+const HelpersLut = AMI.lutHelperFactory(THREE);
 
-export default function DicomViewer({files}) {
+export default function DicomViewer({files, baseLutData, overlayLutData}) {
     const containerRef = useRef(null);
+
+    const baseLutContainerRef = useRef(null);
+    const overlaysLutContainerRef = useRef(null);
+
     const [isReady, setIsReady] = useState(false)
 
     // scenes
@@ -36,6 +41,10 @@ export default function DicomViewer({files}) {
     // controls
     const controlsRef = useRef(null)
 
+    // luts
+    const baseLutRef = useRef(null)
+    const overlaysLutRef = useRef(null)
+
     // stacks
     const baseStackRef = useRef(null)
     const baseStackHelperRef = useRef(null);
@@ -48,9 +57,13 @@ export default function DicomViewer({files}) {
 
     useEffect(() => {
         initViewer()
+        initLuts()
         subscribeEvents()
         animate()
         loadModel()
+        return () => {
+            unSubscribeEvents()
+        }
     }, [])
 
     const initViewer = () => {
@@ -113,9 +126,29 @@ export default function DicomViewer({files}) {
         controlsRef.current = controls
     }
 
+
+    const initLuts = () => {
+        baseLutRef.current = getLutHelper(baseLutContainerRef.current, baseLutData)
+        overlaysLutRef.current = getLutHelper(overlaysLutContainerRef.current, overlayLutData)
+    }
+
+    function getLutHelper(container, lutData) {
+        const {lut, lut0, color, opacity, discrete, isCustom} = lutData
+        const helperLut = new HelpersLut(container, lut, lut0, color, opacity, discrete)
+        if (!isCustom) {
+            helperLut.luts = HelpersLut.presetLuts();
+        }
+        return helperLut;
+    }
+
     const subscribeEvents = () => {
         const container = containerRef.current
         container.addEventListener('wheel', handleScroll);
+    }
+
+    const unSubscribeEvents = () => {
+        const container = containerRef.current
+        container.removeEventListener('wheel', handleScroll);
     }
 
 
@@ -228,7 +261,7 @@ export default function DicomViewer({files}) {
             overlayStack.pack()
 
             const textures = getTextures(overlayStack);
-            const uniforms = getUniforms(overlayStack, textures, 1);
+            const uniforms = getUniforms(overlayStack, textures, 1.0);
             const material = getDataShaderMaterial(uniforms);
 
             const mesh = new THREE.Mesh(baseStackHelperRef.current.slice.geometry, material);
@@ -256,7 +289,11 @@ export default function DicomViewer({files}) {
         const stackHelper = new StackHelper(stack);
         stackHelper.bbox.visible = false;
         stackHelper.border.visible = false;
-        stackHelper.index = 0;
+
+        if (baseLutContainerRef.current) {
+            stackHelper.slice.lutTexture = baseLutData.texture;
+        }
+
         baseStackHelperRef.current = stackHelper;
     }
 
@@ -293,7 +330,13 @@ export default function DicomViewer({files}) {
         uniforms.uRescaleSlopeIntercept.value = [stack.rescaleSlope, stack.rescaleIntercept];
         uniforms.uDataDimensions.value = [stack.dimensionsIJK.x, stack.dimensionsIJK.y, stack.dimensionsIJK.z];
         uniforms.uInterpolation.value = 0;
-        uniforms.uOpacity.value = opacity // testing
+        uniforms.uOpacity.value = opacity
+
+        if (overlaysLutRef.current) {
+            const lut = overlaysLutRef.current
+            uniforms.uLut.value = 1;
+            uniforms.uTextureLUT.value = lut.texture;
+        }
         return uniforms
     }
 
@@ -362,6 +405,16 @@ export default function DicomViewer({files}) {
     }
 
     return <Box ref={containerRef} sx={{height: "100%", width: "100%",}}>
-
+        <Box sx={{
+            position: "fixed",
+            left: "50%",
+            transform: "translate(-50%, 0)",
+            zIndex: "3",
+            color: "#f9f9f9",
+            textAlign: "center"
+        }}>
+            <Box sx={{position: "relative"}} ref={baseLutContainerRef}></Box>
+            <Box sx={{position: "relative"}} ref={overlaysLutContainerRef}></Box>
+        </Box>
     </Box>
 }
