@@ -3,9 +3,11 @@ import {Box} from "@mui/material";
 
 
 export default function App() {
+    // the order in the data array is used to define the order of layers. Index 0 is the base layer
     let data = [
         'T1stripvolume.nii.gz',
-        'labels.nii.gz'
+        'labels.nii.gz',
+        'labels.nii.gz',
     ]
     let files = data.map(function (v) {
         return 'http://localhost:1234/' + v;

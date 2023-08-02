@@ -40,9 +40,15 @@ export default function DicomViewer({files}) {
     const baseStackRef = useRef(null)
     const baseStackHelperRef = useRef(null);
 
+    // meshes
+    const overlayMeshesRef = useRef([])
+    const mixedMeshRef = useRef(null)
+    const mixedMaterialRef = useRef(null)
+
 
     useEffect(() => {
         initViewer()
+        subscribeEvents()
         animate()
         loadModel()
     }, [])
@@ -107,6 +113,57 @@ export default function DicomViewer({files}) {
         controlsRef.current = controls
     }
 
+    const subscribeEvents = () => {
+        const container = containerRef.current
+        container.addEventListener('wheel', handleScroll);
+    }
+
+
+    const handleScroll = (event) => {
+        const stackHelper = baseStackHelperRef.current
+        updateStackHelperIndex(event, stackHelper);
+        updateOverlayMeshesGeometry()
+        updateMixedLayer()
+    }
+
+    const updateOverlayMeshesGeometry = () => {
+        overlayMeshesRef.current.forEach(mesh => {
+            const stackHelper = baseStackHelperRef.current
+            mesh.geometry.dispose()
+            mesh.geometry = stackHelper.slice.geometry
+            mesh.geometry.verticesNeedUpdate = true;
+        })
+    }
+
+    const updateMixedLayer = () => {
+        const scene = sceneRef.current
+        const mesh = mixedMeshRef.current
+        const stackHelper = baseStackHelperRef.current
+        const material = mixedMaterialRef.current
+
+        scene.remove(mesh)
+        mesh.material.dispose()
+        mesh.geometry.dispose()
+
+        const newMesh = new THREE.Mesh(stackHelper.slice.geometry, material);
+        newMesh.applyMatrix4(stackHelper.stack._ijk2LPS)
+        scene.add(newMesh)
+    }
+
+    function updateStackHelperIndex(event, stackHelper) {
+        if (event.deltaY > 0) {
+            if (stackHelper.index >= stackHelper.orientationMaxIndex - 1) {
+                return
+            }
+            stackHelper.index = stackHelper.index + 1;
+        } else {
+            if (stackHelper.index <= 0) {
+                return
+            }
+            stackHelper.index = stackHelper.index - 1;
+        }
+    }
+
     const animate = () => {
         const controls = controlsRef.current
         const renderer = rendererRef.current
@@ -134,9 +191,7 @@ export default function DicomViewer({files}) {
         const container = containerRef.current
         const loader = new AMI.VolumeLoader(container); // Shows the progress bar in the container
 
-        console.log("start loading")
         loader.load(files, undefined).then(() => {
-            console.log("loading handler")
             let series
             try {
                 series = orderSeries(files, loader.data[0].mergeSeries(loader.data))
@@ -173,12 +228,13 @@ export default function DicomViewer({files}) {
             overlayStack.pack()
 
             const textures = getTextures(overlayStack);
-            const uniforms = getUniforms(overlayStack, textures);
+            const uniforms = getUniforms(overlayStack, textures, 1);
             const material = getDataShaderMaterial(uniforms);
 
             const mesh = new THREE.Mesh(baseStackHelperRef.current.slice.geometry, material);
             mesh.applyMatrix4(baseStack._ijk2LPS);
             hiddenSceneOverlaysLayerRef.current.add(mesh);
+            overlayMeshesRef.current.push(mesh)
         }
 
         /***
@@ -191,14 +247,16 @@ export default function DicomViewer({files}) {
         const meshBlend = new THREE.Mesh(baseStackHelperRef.current.slice.geometry, materialBlend);
         meshBlend.applyMatrix4(baseStack._ijk2LPS);
         sceneRef.current.add(meshBlend);
+
+        mixedMaterialRef.current = materialBlend
+        mixedMeshRef.current = meshBlend
     }
 
     function initStackHelper(stack) {
         const stackHelper = new StackHelper(stack);
         stackHelper.bbox.visible = false;
         stackHelper.border.visible = false;
-        stackHelper.index = 100; // testing only
-
+        stackHelper.index = 0;
         baseStackHelperRef.current = stackHelper;
     }
 
@@ -223,7 +281,7 @@ export default function DicomViewer({files}) {
         return textures;
     }
 
-    function getUniforms(stack, textures) {
+    function getUniforms(stack, textures, opacity) {
         const uniforms = DataUniformShader.uniforms();
         uniforms.uTextureSize.value = stack.textureSize;
         uniforms.uTextureContainer.value = textures;
@@ -235,6 +293,7 @@ export default function DicomViewer({files}) {
         uniforms.uRescaleSlopeIntercept.value = [stack.rescaleSlope, stack.rescaleIntercept];
         uniforms.uDataDimensions.value = [stack.dimensionsIJK.x, stack.dimensionsIJK.y, stack.dimensionsIJK.z];
         uniforms.uInterpolation.value = 0;
+        uniforms.uOpacity.value = opacity // testing
         return uniforms
     }
 
