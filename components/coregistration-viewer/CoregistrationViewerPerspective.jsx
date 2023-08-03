@@ -50,6 +50,8 @@ export default function CoregistrationViewerPerspective({
         updateStackHelperIndex(stackHelperRef.current, isAdd)
         if (hasOverlay) {
             updateStackHelperIndex(overlayStackHelperRef.current, isAdd)
+            console.log(overlayStackHelperRef.current.children[0].children[0].material.uniforms.uOpacity.value)
+
         }
     }
 
@@ -231,17 +233,13 @@ export default function CoregistrationViewerPerspective({
             stackHelper.slice.lutTexture = helperLut.texture;
             stackHelper.index = 49
             cleanStack(stackHelper)
-            let material = stackHelper.children[0].children[0].material;
-            material.transparent = true;
-            material.opacity = 0.1;
-            material.needsUpdate = true;
-
-            material = stackHelper.slice.children[0].material;
-            material.transparent = true;
-            material.opacity = 0.1;
-            material.needsUpdate = true;
 
             stackHelper.orientation = baseCameraRef.current.stackOrientation
+            let material = stackHelper.children[0].children[0].material
+            material.transparent = true;
+            material.uniforms.uOpacity.value = 0.1
+            material.needsUpdate = true;
+            console.log(stackHelper.children[0].children[0].material.uniforms.uOpacity.value)
             baseSceneRef.current.add(stackHelper);
             overlayStackHelperRef.current = stackHelper;
         }
