@@ -1,72 +1,45 @@
 import React, {useEffect, useState} from 'react';
 import io from 'socket.io-client';
-import {DEBOUNCE, POSITION, ROTATION, SCALE, SERVER_URL} from "../constants";
-import CoregistrationViewerControls from "./CoregistrationControls";
-import {useDebouncedEffect} from "../hooks/useDebouncedEffect";
+import {DEBOUNCE, SERVER_URL} from "../constants";
 import Loader from "./Loader";
-
+import {Slider, Typography} from '@material-ui/core';
+import {useDebouncedEffect} from "../hooks/useDebouncedEffect";
 
 function CoregistrationViewer() {
     const socket = io(SERVER_URL);
     const [images, setImages] = useState([]);
-    const [positionTransform, setPositionTransform] = useState(null)
-    const [rotationTransform, setRotationTransform] = useState(null)
-    const [scaleTransform, setScaleTransform] = useState(null)
     const [loading, setLoading] = useState(false);
+    const [opacity, setOpacity] = useState(50);
+    const [index, setIndex] = useState(0);
 
     socket.on('images', (base64Images) => {
         setLoading(false)
         setImages(base64Images);
     });
 
+    useDebouncedEffect(() => {
+        setLoading(true);
+        socket.emit('generate', {slice_index: index, alpha: opacity / 100});
+    }, [index, opacity], DEBOUNCE);
+
     useEffect(() => {
-
-        // Send a "start" event to the server to start the image stream
-        socket.emit('start');
-
         return () => socket.disconnect();
     }, []);
-
-    const onControlsChange = (transform, axis, amount) => {
-        switch (transform) {
-            case SCALE:
-                setScaleTransform({axis, amount})
-                break;
-            case ROTATION:
-                setRotationTransform({axis, amount})
-                break;
-            case POSITION:
-                setPositionTransform({axis, amount})
-                break;
-        }
-    }
-
-    useDebouncedEffect(() => {
-            if (scaleTransform) {
-                setLoading(true)
-                socket.emit('transform', SCALE, scaleTransform.axis, scaleTransform.amount)
-            }
-        },
-        [scaleTransform], DEBOUNCE);
-    useDebouncedEffect(() => {
-            if (rotationTransform) {
-                setLoading(true)
-                socket.emit('transform', ROTATION, rotationTransform.axis, rotationTransform.amount)
-            }
-        },
-        [rotationTransform], DEBOUNCE);
-    useDebouncedEffect(() => {
-            if (positionTransform) {
-                setLoading(true)
-                socket.emit('transform', POSITION, positionTransform.axis, positionTransform.amount)
-            }
-        },
-        [positionTransform], DEBOUNCE);
 
     return (
         <div style={{display: "flex", flexDirection: 'row', alignItems: 'center'}}>
             <Loader open={loading}/>
-            <CoregistrationViewerControls onChange={onControlsChange}/>
+            <div>
+                <Typography id="opacity-slider" gutterBottom>
+                    Opacity
+                </Typography>
+                <Slider value={opacity} onChange={(e, newValue) => setOpacity(newValue)}
+                        aria-labelledby="opacity-slider"/>
+                <Typography id="index-slider" gutterBottom>
+                    Slice Index
+                </Typography>
+                <Slider value={index} onChange={(e, newValue) => setIndex(newValue)} aria-labelledby="index-slider"/>
+            </div>
             <div style={{display: 'flex', flexDirection: 'row'}}>
                 {images.map((base64Image, index) => (
                     <img src={`data:image/jpeg;base64,${base64Image}`}
@@ -74,7 +47,6 @@ function CoregistrationViewer() {
                 ))}
             </div>
         </div>
-
     );
 }
 

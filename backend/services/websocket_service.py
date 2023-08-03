@@ -1,14 +1,9 @@
-from backend.helpers.images_helper import get_image, get_aligned_overlay
-from backend.settings import orientation_map, overlay_data
+from backend.helpers.images_helper import get_image
+from backend.settings import orientation_map
 
 
-def get_images(o_data=overlay_data):
+def get_images(slice_index=None, alpha=0.5):
     images = []
     for key in orientation_map:
-        images.append(get_image(o_data, key))
+        images.append(get_image(key, slice_index, alpha))
     return images
-
-
-def get_aligned_images(transform, axis, value):
-    aligned_overlay = get_aligned_overlay(overlay_data, transform, axis, value)
-    return get_images(aligned_overlay)

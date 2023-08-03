@@ -1,25 +1,23 @@
 import base64
 import io
 
-import mne as mne
+import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
-import matplotlib.pyplot as plt
 
-from backend.helpers.transforms_helpers import get_affine_matrix
-from backend.settings import orientation_map, base_data, VOXEL_SIZE
+from backend.settings import orientation_map, base_data, overlay_data, VOXEL_SIZE
 
 base = nib.orientations.apply_orientation(
     np.asarray(base_data.dataobj), nib.orientations.axcodes2ornt(
         nib.orientations.aff2axcodes(base_data.affine))).astype(np.float32)
 
+overlay = nib.orientations.apply_orientation(
+    np.asarray(overlay_data.dataobj), nib.orientations.axcodes2ornt(
+        nib.orientations.aff2axcodes(overlay_data.affine))).astype(np.float32)
 
-def _generate_image(overlay, orientation, alpha=0.5):
+
+def _generate_image(orientation, slice_index=None, alpha=0.5):
     """Define a helper function for comparing plots."""
-
-    overlay = nib.orientations.apply_orientation(
-        np.asarray(overlay.dataobj), nib.orientations.axcodes2ornt(
-            nib.orientations.aff2axcodes(overlay.affine))).astype(np.float32)
 
     # Set the physical size of each voxel (in millimeters)
     voxel_size = VOXEL_SIZE
@@ -31,9 +29,14 @@ def _generate_image(overlay, orientation, alpha=0.5):
 
     fig, ax = plt.subplots(1, 1, figsize=figsize)
     i = orientation_map[orientation]
-    ax.imshow(np.take(base, [base.shape[i] // 2], axis=i).squeeze().T,
+
+    print(base.shape[i])
+    if slice_index is None:
+        slice_index = base.shape[i] // 2
+
+    ax.imshow(np.take(base, [slice_index], axis=i).squeeze().T,
               cmap='gray')
-    ax.imshow(np.take(overlay, [overlay.shape[i] // 2],
+    ax.imshow(np.take(overlay, [slice_index],
                       axis=i).squeeze().T, cmap='gist_heat', alpha=alpha)
     ax.invert_yaxis()
     ax.axis('off')
@@ -42,16 +45,11 @@ def _generate_image(overlay, orientation, alpha=0.5):
     return fig
 
 
-def get_image(overlay, orientation, alpha=0.5):
-    fig = _generate_image(overlay, orientation, alpha)
+def get_image(orientation, slice_index=None, alpha=0.5):
+    fig = _generate_image(orientation, slice_index, alpha)
     # Save the figure to a BytesIO object
     buf = io.BytesIO()
     fig.savefig(buf, format='png', transparent=True)
     buf.seek(0)
     plt.close('all')
     return base64.b64encode(buf.getvalue()).decode('utf-8')
-
-
-def get_aligned_overlay(overlay, transform, axis, value):
-    return mne.transforms.apply_volume_registration(base_data, overlay, get_affine_matrix(base, transform, axis, value),
-                                                    cval='1%')

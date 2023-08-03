@@ -2,7 +2,7 @@ from pathlib import Path
 
 import nibabel as nib
 
-base_data = nib.load(f"{Path(__file__).absolute().parent}/data/base.mgz")
+base_data = nib.load(f"{Path(__file__).absolute().parent}/data/base.nii.gz")
 overlay_data = nib.load(f"{Path(__file__).absolute().parent}/data/overlay.nii.gz")
 
 orientation_map = {
