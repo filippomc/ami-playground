@@ -7,8 +7,8 @@ import {useState} from "react";
 export default function App() {
     const [viewHelpers, setViewHelpers] = useState(undefined)
     let data = [
-        'base.mgz',
-        'overlay.nii.gz'
+        'gubra_ano_combined_25um_boundary.nii.gz',
+        'glm_ANOVA_Psi_cFos_rb4_z_vox_p_fstat1.nii.gz'
     ]
     let files = data.map(function (v) {
         return 'http://localhost:1234/' + v;

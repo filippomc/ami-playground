@@ -24,31 +24,25 @@ export default function CoregistrationViewerPerspective({
                                                             opacity = "55%"
                                                         }) {
     const baseContainerRef = useRef(null);
-    const overlayContainerRef = useRef(null);
 
     const baseSceneRef = useRef(null)
-    const overlaySceneRef = useRef(null)
 
     const baseRendererRef = useRef(null)
-    const overlayRendererRef = useRef(null)
 
     const stackHelperRef = useRef(null)
     const overlayStackHelperRef = useRef(null)
 
     const baseCameraRef = useRef(null)
-    const overlayCameraRef = useRef(null)
 
     const baseControlsRef = useRef(null)
-    const overlayControlsRef = useRef(null)
 
     const size = useSize(baseContainerRef)
 
     const hasOverlay = overlayStack !== undefined
 
     const subscribeEvents = () => {
-        const container = hasOverlay ? overlayContainerRef.current : baseContainerRef.current
+        const container = baseContainerRef.current
         container.addEventListener('wheel', handleScroll);
-        document.addEventListener('resize', () => console.log("Test"));
     }
 
     const handleScroll = (event) => {
@@ -76,7 +70,7 @@ export default function CoregistrationViewerPerspective({
     }
 
     const unSubscribeEvents = () => {
-        const container = hasOverlay ? overlayContainerRef.current : baseContainerRef.current
+        const container = baseContainerRef.current
         container.removeEventListener('wheel', handleScroll);
     }
 
@@ -97,15 +91,6 @@ export default function CoregistrationViewerPerspective({
 
         baseControls.update();
         baseRenderer.render(baseScene, baseCamera);
-        if (hasOverlay) {
-            const overlayRenderer = overlayRendererRef.current
-            const overlayScene = overlaySceneRef.current
-            const overlayCamera = overlayCameraRef.current
-            const overlayControls = overlayControlsRef.current
-
-            overlayControls.update();
-            overlayRenderer.render(overlayScene, overlayCamera);
-        }
 
         requestAnimationFrame(function () {
             animate();
@@ -138,19 +123,10 @@ export default function CoregistrationViewerPerspective({
     const initRenderers = () => {
         const baseContainer = baseContainerRef.current
         baseRendererRef.current = getRenderer(baseContainer);
-
-        if (hasOverlay) {
-            const overlayContainer = overlayContainerRef.current
-            overlayRendererRef.current = getRenderer(overlayContainer);
-        }
     }
 
     const initScenes = () => {
         baseSceneRef.current = new THREE.Scene();
-        if (hasOverlay) {
-            overlaySceneRef.current = new THREE.Scene();
-            overlaySceneRef.current.name = orientation;
-        }
     }
 
     function getOrthographicCamera(container) {
@@ -172,14 +148,6 @@ export default function CoregistrationViewerPerspective({
         const baseScene = baseSceneRef.current
         baseCameraRef.current = getOrthographicCamera(baseContainer);
         baseScene.add(baseCameraRef.current)
-        if (hasOverlay) {
-            const overlayContainer = overlayContainerRef.current
-            const overlayScene = overlaySceneRef.current
-            overlayCameraRef.current = getOrthographicCamera(overlayContainer);
-            overlayCameraRef.current.name = "overlayCamera"
-            overlayScene.add(overlayCameraRef.current)
-        }
-
     }
 
     function getControls(camera, baseContainer) {
@@ -194,12 +162,6 @@ export default function CoregistrationViewerPerspective({
         const baseContainer = baseContainerRef.current
         baseControlsRef.current = getControls(baseCamera, baseContainer);
         baseCamera.controls = baseControlsRef.current;
-        if (hasOverlay) {
-            const overlayContainer = overlayContainerRef.current
-            const overlayCamera = overlayCameraRef.current
-            overlayControlsRef.current = getControls(overlayCamera, overlayContainer);
-            overlayCamera.controls = baseControlsRef.current;
-        }
     }
 
     function updateCameraDimensions(camera, container) {
@@ -242,6 +204,7 @@ export default function CoregistrationViewerPerspective({
         const stackHelper = new StackHelper(baseStack);
         stackHelper.bbox.visible = false;
         stackHelper.border.color = colors.darkGrey;
+        stackHelper.index = 49
         baseSceneRef.current.add(stackHelper);
         stackHelperRef.current = stackHelper;
         updateCamera(baseContainer, baseCamera, baseStack);
@@ -266,14 +229,21 @@ export default function CoregistrationViewerPerspective({
             stackHelper.border.color = borderColor;
             stackHelper.slice.lut = helperLut.lut;
             stackHelper.slice.lutTexture = helperLut.texture;
+            stackHelper.index = 49
             cleanStack(stackHelper)
-            overlaySceneRef.current.add(stackHelper);
+            let material = stackHelper.children[0].children[0].material;
+            material.transparent = true;
+            material.opacity = 0.1;
+            material.needsUpdate = true;
+
+            material = stackHelper.slice.children[0].material;
+            material.transparent = true;
+            material.opacity = 0.1;
+            material.needsUpdate = true;
+
+            stackHelper.orientation = baseCameraRef.current.stackOrientation
+            baseSceneRef.current.add(stackHelper);
             overlayStackHelperRef.current = stackHelper;
-            const overlayContainer = overlayContainerRef.current
-            const overlayCamera = overlayCameraRef.current
-            updateCamera(overlayContainer, overlayCamera, overlayStack);
-            stackHelper.orientation = overlayCamera.stackOrientation
-            onOverlayReady(overlaySceneRef.current, overlayContainerRef.current, overlayStackHelperRef.current)
         }
     }, [overlayStack, borderColor, helperLut]);
 
@@ -281,9 +251,6 @@ export default function CoregistrationViewerPerspective({
     useEffect(() => {
         if (baseContainerRef.current) {
             handleResize(baseContainerRef.current, baseCameraRef.current, baseRendererRef.current)
-        }
-        if (overlayRendererRef.current) {
-            handleResize(overlayContainerRef.current, overlayCameraRef.current, overlayRendererRef.current)
         }
     }, [size])
 
@@ -295,16 +262,6 @@ export default function CoregistrationViewerPerspective({
     return (
         <Box sx={{position: "relative", height: "100%", width: "100%"}}>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
-            {hasOverlay &&
-                <Box id={orientation} sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    height: "100%",
-                    width: "100%",
-                    opacity: opacity,
-                }}
-                     ref={overlayContainerRef}/>}
         </Box>
     )
 }
