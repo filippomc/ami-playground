@@ -26,7 +26,6 @@ export default function App() {
     }
     return (
         <Box sx={{height: "100vh", width: "100%", display: "flex", flexDirection: "row"}}>
-            <CoregistrationViewerControls viewHelpers={viewHelpers}/>
             <CoregistrationViewer files={files} lutData={lutData} onOverlayReady={handleDicomViewerMount}/>
         </Box>
     );
