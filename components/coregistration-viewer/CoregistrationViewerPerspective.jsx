@@ -10,6 +10,7 @@ import {useSize} from "../../hooks/useSize";
 window.AMI = AMI;
 window.THREE = THREE;
 
+const OPACITY = 0.5;
 const StackHelper = AMI.stackHelperFactory(THREE);
 const OrthographicCamera = AMI.orthographicCameraFactory(THREE);
 const TrackballOrthoControl = AMI.trackballOrthoControlFactory(THREE);
@@ -50,7 +51,10 @@ export default function CoregistrationViewerPerspective({
         updateStackHelperIndex(stackHelperRef.current, isAdd)
         if (hasOverlay) {
             updateStackHelperIndex(overlayStackHelperRef.current, isAdd)
-            console.log(overlayStackHelperRef.current.children[0].children[0].material.uniforms.uOpacity.value)
+            let material = overlayStackHelperRef.current.children[0].children[0].material
+            material.transparent = true;
+            material.uniforms.uOpacity.value = OPACITY
+            material.needsUpdate = true;
 
         }
     }
@@ -237,7 +241,7 @@ export default function CoregistrationViewerPerspective({
             stackHelper.orientation = baseCameraRef.current.stackOrientation
             let material = stackHelper.children[0].children[0].material
             material.transparent = true;
-            material.uniforms.uOpacity.value = 0.1
+            material.uniforms.uOpacity.value = OPACITY
             material.needsUpdate = true;
             console.log(stackHelper.children[0].children[0].material.uniforms.uOpacity.value)
             baseSceneRef.current.add(stackHelper);
