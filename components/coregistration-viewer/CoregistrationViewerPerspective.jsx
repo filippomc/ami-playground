@@ -3,8 +3,9 @@ import * as THREE from 'three';
 import * as AMI from 'ami.js';
 import {useEffect, useRef} from "react";
 import {colors} from '../../utils';
-import {Box} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import {useSize} from "../../hooks/useSize";
+const msgpack = require('@msgpack/msgpack');
 
 
 window.AMI = AMI;
@@ -14,6 +15,22 @@ const OPACITY = 0.5;
 const StackHelper = AMI.stackHelperFactory(THREE);
 const OrthographicCamera = AMI.orthographicCameraFactory(THREE);
 const TrackballOrthoControl = AMI.trackballOrthoControlFactory(THREE);
+
+
+function exportData(stackHelper) {
+
+    if (stackHelper) {
+        // Serialize the stack
+        const serializedStack = msgpack.encode(stackHelper.stack);
+
+        // Generate a Blob and create a download link
+        const blob = new Blob([serializedStack], { type: 'application/octet-stream' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'exported-stack.msgpack';
+        link.click();
+    }
+}
 
 export default function CoregistrationViewerPerspective({
                                                             baseStack,
@@ -243,7 +260,6 @@ export default function CoregistrationViewerPerspective({
             material.transparent = true;
             material.uniforms.uOpacity.value = OPACITY
             material.needsUpdate = true;
-            console.log(stackHelper.children[0].children[0].material.uniforms.uOpacity.value)
             baseSceneRef.current.add(stackHelper);
             overlayStackHelperRef.current = stackHelper;
         }
@@ -263,6 +279,7 @@ export default function CoregistrationViewerPerspective({
 
     return (
         <Box sx={{position: "relative", height: "100%", width: "100%"}}>
+            <Button sx={{position: "absolute", top: 0, right: 0, zIndex:1000, background: "white",}} onClick={() => exportData(overlayStackHelperRef.current)}>Export Data</Button>
             <Box sx={{position: "absolute", top: 0, left: 0, height: "100%", width: "100%",}} ref={baseContainerRef}/>
         </Box>
     )

@@ -1,11 +1,14 @@
 import CoregistrationViewerPerspective from "./CoregistrationViewerPerspective";
 import {useEffect, useRef, useState} from "react";
-import * as AMI from "ami.js";
 import {colors, orderSeries} from '../../utils';
 import {Box} from "@mui/material";
 import HelpersLut from "ami.js/src/helpers/helpers.lut";
+import {StackModel} from "ami.js/src/models/models";
 import {axial, coronal, sagittal} from "./constants";
 import {viewHelperFactory} from "./controls/helpers/ViewHelperFactory";
+const msgpack = require('@msgpack/msgpack');
+import * as THREE from 'three';
+
 
 
 export default function CoregistrationViewer({mode, files, lutData, onOverlayReady, ...props}) {
@@ -21,17 +24,54 @@ export default function CoregistrationViewer({mode, files, lutData, onOverlayRea
     }, []);
 
     const loadModel = () => {
-        const container = containerRef.current
-        const loader = new AMI.VolumeLoader(container); // Shows the progress bar in the container
-        loader.load(files).then(() => {
-            const series = orderSeries(files, loader.data[0].mergeSeries(loader.data))
-            const baseStack = series[0].stack[0];
-            const overlayStack = series[1].stack[0];
-            setStacks([baseStack, overlayStack])
-            loader.free();
-            onOverlayReady(overlaysData.current)
-        })
-    }
+        // Use Promises to load and decode each msgpack file
+        const loadMsgPack = url => {
+            return fetch(url)
+                .then(response => response.arrayBuffer())
+                .then(buffer => msgpack.decode(new Uint8Array(buffer)))
+                .catch(error => {
+                    console.error(`Error loading ${url}: ${error}`);
+                });
+        };
+
+        // Function to check if an object has x, y, and z properties
+        function isVector3Object(obj) {
+            return obj && typeof obj === 'object' && 'x' in obj && 'y' in obj && 'z' in obj;
+        }
+
+        // Function to populate a ModelsStack instance generically
+        function populateModelsStack(decodedData) {
+            const stack = new StackModel();
+
+            // Iterate over all properties of the stack
+            for (let prop in stack) {
+                if (stack.hasOwnProperty(prop) && decodedData.hasOwnProperty(prop)) {
+                    if (isVector3Object(decodedData[prop])) {
+                        stack[prop] = new THREE.Vector3(decodedData[prop].x, decodedData[prop].y, decodedData[prop].z);
+                    } else {
+                        stack[prop] = decodedData[prop];
+                    }
+                }
+            }
+
+            return stack;
+        }
+
+        // Use Promise.all to ensure all files are loaded and decoded before proceeding
+        Promise.all(files.map(loadMsgPack)).then(decodedStacks => {
+            // Here, decodedStacks[0] contains the deserialized base stack
+            // and decodedStacks[1] contains the deserialized overlay stack.
+            const baseStack = populateModelsStack(decodedStacks[0]);
+            const overlayStack = populateModelsStack(decodedStacks[1]);
+
+            // Set the state or whatever is required with the deserialized stacks
+            setStacks([baseStack, overlayStack]);
+
+            // Call any additional setup or visualization functions
+            onOverlayReady(overlaysData.current);
+        });
+    };
+
 
     useEffect(() => {
         if (lutContainerRef) {
@@ -78,12 +118,12 @@ export default function CoregistrationViewer({mode, files, lutData, onOverlayRea
                 <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.red}
                                                  helperLut={helperLut} orientation={axial}
                                                  onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, axial)}/>
-                <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}
-                                                 helperLut={helperLut} orientation={coronal}
-                                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, coronal)}/>
-                <CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}
-                                                 helperLut={helperLut} orientation={sagittal}
-                                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, sagittal)}/>
+                {/*<CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.blue}*/}
+                {/*                                 helperLut={helperLut} orientation={coronal}*/}
+                {/*                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, coronal)}/>*/}
+                {/*<CoregistrationViewerPerspective baseStack={stacks[0]} overlayStack={stacks[1]} borderColor={colors.green}*/}
+                {/*                                 helperLut={helperLut} orientation={sagittal}*/}
+                {/*                                 onOverlayReady={(scene, container, stackHelper) => addOverlayData(scene, container, stackHelper, sagittal)}/>*/}
             </Box>
 
 
